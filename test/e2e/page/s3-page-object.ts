@@ -1,25 +1,29 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
-import { BasePageObject } from '@cloudscape-design/browser-test-tools/page-objects';
 import createWrapper from '@cloudscape-design/components/test-utils/selectors';
+import BaseExamplePage from '../common/base-example-page';
 
 const wrapper = createWrapper();
 const s3ResourceSelector = wrapper.findS3ResourceSelector();
 
-export default class S3PageObject extends BasePageObject {
+export default class S3PageObject extends BaseExamplePage {
   async getOptionalText(selector: string) {
     const elementIsDisplayed = await this.isDisplayed(selector);
     return elementIsDisplayed ? this.getText(selector) : null;
+  }
+
+  getHeader() {
+    return this.getText(
+      createWrapper(wrapper.findForm().findHeader().toSelector()).findHeader().find('h1').toSelector()
+    );
   }
 
   getErrorText() {
     return this.getOptionalText(wrapper.findFormField().findError().toSelector());
   }
 
-  async setUriInputValue(value: string | string[]) {
+  async setUriInputValue(value: string) {
     await this.setValue(s3ResourceSelector.findInContext().findUriInput().findNativeInput().toSelector(), value);
-    // click somewhere to blur the input and trigger validation
-    await this.click(wrapper.findHeader().toSelector());
   }
 
   getUriInputValue() {

@@ -30,7 +30,7 @@ export default (setupTest: { (testFn: { (page: TablePropertyFilteringPageObject)
         await page.selectOption(1);
 
         await page.waitUntilPropertyFilterLoaded();
-        await expect(page.countDropdownItems()).resolves.toBe(4);
+        await expect(page.countDropdownItems()).resolves.toBe(6);
       })
     );
 
@@ -73,7 +73,8 @@ export default (setupTest: { (testFn: { (page: TablePropertyFilteringPageObject)
       'Allows free-text filtering',
       setupTest(async page => {
         await page.focusFilter();
-        await page.search(['bbb', 'Enter']);
+        await page.search('bbb');
+        await page.keys(['Enter']);
         await expect(page.getFilterText()).resolves.toBe('');
         await expect(page.countTokens()).resolves.toBe(1);
       })
@@ -133,6 +134,30 @@ export default (setupTest: { (testFn: { (page: TablePropertyFilteringPageObject)
 
         await expect(page.countTokens()).resolves.toBe(2);
         await expect(page.countTableRows()).resolves.toBe(11);
+
+        await page.focusFilter();
+        await page.selectOption(1);
+        await page.waitUntilPropertyFilterLoaded();
+        await page.selectOption(6); // "Does not start with" operator
+        await page.search('abc');
+        await page.keys(['Enter']);
+
+        await page.waitUntilLoaded();
+
+        await expect(page.countTokens()).resolves.toBe(3);
+        await expect(page.countTableRows()).resolves.toBe(7);
+
+        await page.focusFilter();
+        await page.selectOption(1);
+        await page.waitUntilPropertyFilterLoaded();
+        await page.selectOption(5); // "Starts with" operator
+        await page.search('123');
+        await page.keys(['Enter']);
+
+        await page.waitUntilLoaded();
+
+        await expect(page.countTokens()).resolves.toBe(4);
+        await expect(page.countTableRows()).resolves.toBe(3);
       })
     );
 

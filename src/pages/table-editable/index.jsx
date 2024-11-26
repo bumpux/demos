@@ -1,14 +1,13 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 import { createRoot } from 'react-dom/client';
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useCollection } from '@cloudscape-design/collection-hooks';
-import { Button, Pagination, Table, TextFilter } from '@cloudscape-design/components';
+import { Pagination, Table, TextFilter } from '@cloudscape-design/components';
 import {
   distributionEditableTableAriaLabels,
   getHeaderCounterText,
   getTextFilterCounterText,
-  paginationAriaLabels,
   renderAriaLive,
 } from '../../i18n-strings';
 import { FullPageHeader } from '../commons';
@@ -23,7 +22,7 @@ import {
 } from '../commons/common-components';
 import DataProvider from '../commons/data-provider';
 import { useColumnWidths } from '../commons/use-column-widths';
-import { Breadcrumbs, ToolsContent } from '../table/common-components';
+import { Breadcrumbs, ManualRefresh, ToolsContent } from '../table/common-components';
 import {
   DEFAULT_PREFERENCES,
   EDITABLE_COLUMN_DEFINITIONS,
@@ -43,13 +42,13 @@ const withSideEffect =
 const fakeDataFetch = delay => new Promise(resolve => setTimeout(() => resolve(), delay));
 
 function TableContent({ loadHelpPanelContent, distributions }) {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [lastRefresh, setLastRefresh] = useState(null);
   const [tableItems, setTableItems] = useState(distributions);
-  const [columnDefinitions, saveWidths] = useColumnWidths('React-EditableTable-Widths', EDITABLE_COLUMN_DEFINITIONS);
-  const [preferences, setPreferences] = useLocalStorage(
-    'React-EditableDistributionsTable-Preferences',
-    DEFAULT_PREFERENCES
-  );
+  const [columnDefinitions, saveWidths] = useColumnWidths('React-TableEditable-Widths', EDITABLE_COLUMN_DEFINITIONS);
+  const [preferences, setPreferences] = useLocalStorage('React-TableEditable-Preferences', DEFAULT_PREFERENCES);
   const [itemsSnap, setItemsSnap] = useState(null);
 
   const persistChanges = () => {
@@ -84,15 +83,20 @@ function TableContent({ loadHelpPanelContent, distributions }) {
   };
 
   const onRefresh = async () => {
-    setLoading(true);
+    setRefreshing(true);
     await fakeDataFetch(500);
     persistChanges();
-    setLoading(false);
+    setLastRefresh(new Date());
+    setRefreshing(false);
   };
 
-  const refreshButtonProps = { onClick: onRefresh };
+  useEffect(() => {
+    // Demonstrates an initial fetching of the data from the backend.
+    setTimeout(() => setLoading(false), 500);
+  }, []);
 
   const handleSubmit = async (currentItem, column, value) => {
+    setSubmitting(true);
     await new Promise(resolve => setTimeout(resolve, 1500));
     let fullCollection = tableItems;
 
@@ -119,11 +123,13 @@ function TableContent({ loadHelpPanelContent, distributions }) {
     }
 
     setTableItems(fullCollection.map(item => (item === currentItem ? newItem : item)));
+    setSubmitting(false);
   };
 
   return (
     <Table
       {...tableCollectionProps}
+      enableKeyboardNavigation={true}
       columnDefinitions={columnDefinitions}
       columnDisplay={preferences.contentDisplay}
       items={itemsSnap || items}
@@ -137,13 +143,16 @@ function TableContent({ loadHelpPanelContent, distributions }) {
       wrapLines={preferences.wrapLines}
       stripedRows={preferences.stripedRows}
       contentDensity={preferences.contentDensity}
+      stickyColumns={preferences.stickyColumns}
       selectionType="multi"
       loading={loading}
       header={
         <FullPageHeader
           selectedItemsCount={tableCollectionProps.selectedItems.length}
-          counter={getHeaderCounterText(distributions, tableCollectionProps.selectedItems)}
-          extraActions={<Button iconName="refresh" ariaLabel="Refresh" {...refreshButtonProps} />}
+          counter={!loading && getHeaderCounterText(distributions, tableCollectionProps.selectedItems)}
+          extraActions={
+            <ManualRefresh onRefresh={onRefresh} loading={refreshing} disabled={submitting} lastRefresh={lastRefresh} />
+          }
           onInfoLinkClick={loadHelpPanelContent}
         />
       }
@@ -154,11 +163,10 @@ function TableContent({ loadHelpPanelContent, distributions }) {
           filteringPlaceholder="Find distributions"
           filteringClearAriaLabel="Clear"
           countText={getTextFilterCounterText(filteredItemsCount)}
+          disabled={submitting}
         />
       }
-      pagination={
-        <Pagination {...tablePaginationProps} ariaLabels={paginationAriaLabels(tablePaginationProps.pagesCount)} />
-      }
+      pagination={<Pagination {...tablePaginationProps} disabled={submitting} />}
       preferences={<Preferences preferences={preferences} setPreferences={setPreferences} />}
     />
   );

@@ -1,9 +1,9 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 import React, { useState, useEffect } from 'react';
-import { Header, Table, BreadcrumbGroup, ColumnLayout, Box } from '@cloudscape-design/components';
+import { Header, Table, BreadcrumbGroup, KeyValuePairs, Box, Link } from '@cloudscape-design/components';
 import { COLUMN_DEFINITIONS_PANEL_CONTENT_SINGLE, SELECTION_LABELS } from './table-config';
-import { CounterLink } from '../commons/common-components';
+import { isVisualRefresh } from '../../common/apply-mode';
 
 const EMPTY_PANEL_CONTENT = {
   header: '0 instances selected',
@@ -31,6 +31,7 @@ export const getPanelContentSingle = items => {
     header: item.id,
     body: (
       <Table
+        enableKeyboardNavigation={true}
         header={
           <Header variant="h2" counter={`(${item.inboundRules.length})`}>
             Inbound rules
@@ -38,7 +39,7 @@ export const getPanelContentSingle = items => {
         }
         columnDefinitions={COLUMN_DEFINITIONS_PANEL_CONTENT_SINGLE}
         items={item.inboundRules}
-        variant="embedded"
+        variant={isVisualRefresh ? 'borderless' : 'container'}
       ></Table>
     ),
   };
@@ -70,24 +71,43 @@ export const getPanelContentMultiple = items => {
   return {
     header: `${items.length} instances selected`,
     body: (
-      <ColumnLayout columns="4" variant="text-grid">
-        <div>
-          <Box variant="awsui-key-label">Running instances</Box>
-          <CounterLink>{enabled}</CounterLink>
-        </div>
-        <div>
-          <Box variant="awsui-key-label">Volumes</Box>
-          <CounterLink>{volumes}</CounterLink>
-        </div>
-        <div>
-          <Box variant="awsui-key-label">Security groups</Box>
-          <CounterLink>{securityGroups}</CounterLink>
-        </div>
-        <div>
-          <Box variant="awsui-key-label">Load balancers</Box>
-          <CounterLink>{loadBalancers}</CounterLink>
-        </div>
-      </ColumnLayout>
+      <KeyValuePairs
+        columns={4}
+        items={[
+          {
+            label: 'Running instances',
+            value: (
+              <Link variant="awsui-value-large" href="#" ariaLabel={`Running instances (${enabled})`}>
+                {enabled}
+              </Link>
+            ),
+          },
+          {
+            label: 'Volumes',
+            value: (
+              <Link variant="awsui-value-large" href="#" ariaLabel={`Volumes (${volumes})`}>
+                {volumes}
+              </Link>
+            ),
+          },
+          {
+            label: 'Security groups',
+            value: (
+              <Link variant="awsui-value-large" href="#" ariaLabel={`Security groups (${securityGroups})`}>
+                {securityGroups}
+              </Link>
+            ),
+          },
+          {
+            label: 'Load balancers',
+            value: (
+              <Link variant="awsui-value-large" href="#" ariaLabel={`Load balancers (${loadBalancers})`}>
+                {loadBalancers}
+              </Link>
+            ),
+          },
+        ]}
+      />
     ),
   };
 };
@@ -146,11 +166,12 @@ export const getPanelContentComparison = items => {
     body: (
       <Box padding={{ bottom: 'l' }}>
         <Table
+          enableKeyboardNavigation={true}
           ariaLabels={SELECTION_LABELS}
           header={<Header variant="h2">Compare details</Header>}
           items={transformedData}
           columnDefinitions={columnDefinitions}
-          variant="embedded"
+          variant={isVisualRefresh ? 'borderless' : 'container'}
         />
       </Box>
     ),
@@ -163,7 +184,7 @@ export const Breadcrumbs = () => (
     ariaLabel="Breadcrumbs"
     items={[
       { text: 'Service', href: '#/ec2' },
-      { text: 'Instance', href: '#/ec2/instance' },
+      { text: 'Instances', href: '#/ec2/instances' },
     ]}
   />
 );

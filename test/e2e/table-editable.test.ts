@@ -45,8 +45,18 @@ describe('Table - Inline Editing', () => {
   test(
     'Saves SSL certificate edit',
     setupTest(async page => {
+      await page.hideActionsColumn();
       const afterEditText = await page.performSSLEdit(5);
       expect(afterEditText).toBe('ACM');
+    })
+  );
+
+  test(
+    'Can manually refresh table data',
+    setupTest(async page => {
+      await page.click(page.refreshButton());
+      await page.waitForVisible(page.lastRefresh());
+      await page.waitForAssertion(() => expect(page.getText(page.lastRefresh())).resolves.toContain('Last updated'));
     })
   );
 });

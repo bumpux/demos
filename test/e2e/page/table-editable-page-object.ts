@@ -43,14 +43,13 @@ export default class TableEditablePageObject extends TableFilteringPageObject {
     const bodyCell = this.tableWrapper.findBodyCell(row, 4);
     const input = bodyCell.findFormField().find('input');
     await this.click(bodyCell.toSelector());
-    await this.click(input.toSelector());
 
     const current = await this.browser.$(input.toSelector()).getValue();
     const backspaces = Array(current.length).fill('Backspace');
     await this.keys(backspaces);
     await this.browser.$(input.toSelector()).setValue(value);
 
-    await this.click(bodyCell.findButton('[type="submit"]').toSelector());
+    await this.click(this.tableWrapper.findEditingCellSaveButton().toSelector());
     await this.waitForEditSave();
 
     return this.getText(bodyCell.toSelector());
@@ -64,10 +63,36 @@ export default class TableEditablePageObject extends TableFilteringPageObject {
     await this.click(autosuggest.toSelector());
     await this.click(dropdown.findOptionByValue('ACM').toSelector());
 
-    await this.click(bodyCell.findButton('[type="submit"]').toSelector());
+    await this.click(this.tableWrapper.findEditingCellSaveButton().toSelector());
     await this.waitForEditSave();
 
     return this.getText(bodyCell.toSelector());
+  }
+
+  async hideActionsColumn() {
+    const collectionPreferences = this.tableWrapper.findCollectionPreferences();
+    const radioButtonSelector = collectionPreferences
+      .findModal()
+      .findStickyColumnsPreference('last')
+      .findRadioGroup()
+      .findInputByValue('0')
+      .toSelector();
+
+    // Open collection preferences
+    await this.click(collectionPreferences.findTriggerButton().toSelector());
+
+    // Scroll to the sticky column preferences
+    const radioButton = await this.browser.$(radioButtonSelector);
+    await radioButton.scrollIntoView();
+
+    // Hide actions column
+    await this.toggleColumnVisibility(9);
+
+    // Remove sticky last column and save
+    await this.click(radioButtonSelector);
+
+    // Save changes
+    await this.click(collectionPreferences.findModal().findConfirmButton().toSelector());
   }
 
   getErrorText() {

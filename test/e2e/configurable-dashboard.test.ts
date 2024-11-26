@@ -1,16 +1,16 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 import useBrowser from '@cloudscape-design/browser-test-tools/use-browser';
-import { BasePageObject } from '@cloudscape-design/browser-test-tools/page-objects';
 import createWrapper from '@cloudscape-design/components/test-utils/selectors';
 // importing this file has a side effect of installing new components onto the main wrapper
 import '@cloudscape-design/board-components/test-utils/selectors';
+import BaseExamplePage from './common/base-example-page';
 
 const wrapper = createWrapper();
 const boardWrapper = wrapper.findBoard();
 const paletteWrapper = wrapper.findItemsPalette();
 
-class ConfigurableDashboardPageObject extends BasePageObject {
+class ConfigurableDashboardPageObject extends BaseExamplePage {
   async getHeadersTexts() {
     const widgetHeadersSelector = boardWrapper.findAll('h2').toSelector();
     const texts = await this.getElementsText(widgetHeadersSelector);
@@ -20,10 +20,10 @@ class ConfigurableDashboardPageObject extends BasePageObject {
 
   async addNewWidget() {
     await this.click('button=Add widget');
-    await this.moveWidget(paletteWrapper.findItemById('operationalMetrics').findDragHandle().toSelector(), -800, 200);
+    await this.dragElement(paletteWrapper.findItemById('operationalMetrics').findDragHandle().toSelector(), -800, 170);
   }
 
-  async moveWidget(selector: string, xOffset: number, yOffset: number) {
+  async dragElement(selector: string, xOffset: number, yOffset: number) {
     const originEl = await this.browser.$(selector);
     await this.browser.performActions([
       {
@@ -45,8 +45,9 @@ class ConfigurableDashboardPageObject extends BasePageObject {
 }
 
 describe('Configurable dashboard', () => {
+  const defaultSize = { width: 1600, height: 1800 };
   const setupTest = (testFn: { (page: ConfigurableDashboardPageObject): Promise<void> }) => {
-    return useBrowser({ width: 1600, height: 1800 }, async browser => {
+    return useBrowser(defaultSize, async browser => {
       const page = new ConfigurableDashboardPageObject(browser);
       await browser.url(`/configurable-dashboard.html`);
       await page.waitForVisible('[data-testid="instance-limits-table"]');
@@ -65,6 +66,35 @@ describe('Configurable dashboard', () => {
   );
 
   test(
+    'Adjusts default layout when screen resizes',
+    setupTest(async page => {
+      const { height: heightBefore } = await page.getBoundingBox(
+        boardWrapper.findItemById('serviceOverview').toSelector()
+      );
+      await page.setWindowSize({ ...defaultSize, width: 900 });
+      const { height: heightAfter } = await page.getBoundingBox(
+        boardWrapper.findItemById('serviceOverview').toSelector()
+      );
+      expect(heightAfter).toBeGreaterThan(heightBefore);
+    })
+  );
+
+  test(
+    'Preserves custom layout preference when screen resizes',
+    setupTest(async page => {
+      await page.dragElement(boardWrapper.findItemById('instanceHours').findResizeHandle().toSelector(), 200, 0);
+      const { height: heightBefore } = await page.getBoundingBox(
+        boardWrapper.findItemById('serviceOverview').toSelector()
+      );
+      await page.setWindowSize({ ...defaultSize, width: 900 });
+      const { height: heightAfter } = await page.getBoundingBox(
+        boardWrapper.findItemById('serviceOverview').toSelector()
+      );
+      expect(heightAfter).toEqual(heightBefore);
+    })
+  );
+
+  test(
     'Can reorder widgets',
     setupTest(async page => {
       await expect(page.getHeadersTexts()).resolves.toEqual([
@@ -73,7 +103,7 @@ describe('Configurable dashboard', () => {
         'Instance hours',
         'Network traffic',
       ]);
-      await page.moveWidget(boardWrapper.findItemById('serviceOverview').findDragHandle().toSelector(), 220, 0);
+      await page.dragElement(boardWrapper.findItemById('serviceOverview').findDragHandle().toSelector(), 220, 0);
       await expect(page.getHeadersTexts()).resolves.toEqual([
         'Service health',
         'Service overview - new',

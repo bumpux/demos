@@ -59,17 +59,14 @@ export const TranscriptionJobListPage = () => {
       }
       content={
         <Table
+          enableKeyboardNavigation={true}
           selectionType="single"
           trackBy="name"
           header={
             <Header
               variant="awsui-h1-sticky"
               info={
-                <Link
-                  variant="info"
-                  onFollow={makeHelpPanelHandler('transcription-jobs')}
-                  ariaLabel={'Information about transcription jobs.'}
-                >
+                <Link variant="info" onFollow={makeHelpPanelHandler('transcription-jobs')}>
                   Info
                 </Link>
               }

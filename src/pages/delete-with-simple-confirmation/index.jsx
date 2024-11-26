@@ -4,12 +4,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import {
   Alert,
-  AppLayout,
   Box,
   BreadcrumbGroup,
   Button,
   Container,
-  ContentLayout,
   Flashbar,
   Header,
   Link,
@@ -18,14 +16,13 @@ import {
 } from '@cloudscape-design/components';
 import { SettingsDetails } from '../details/common-components';
 import { Navigation } from '../commons/common-components';
-import { appLayoutAriaLabels } from '../../i18n-strings';
+import { CustomAppLayout } from '../commons/common-components';
 import DataProvider from '../commons/data-provider';
 import '../../styles/base.scss';
 
 import DistributionsTable from './distributions-table';
 import useLocationHash from './use-location-hash';
 import useNotifications from './use-notifications';
-import { flashbarI18nStrings } from '../../i18n-strings';
 import fakeDelay from '../commons/fake-delay';
 
 const delay = 3000;
@@ -115,7 +112,7 @@ function App() {
 
 function DistributionsPage({ distributions, selectedItems, setSelectedItems, onDeleteInit, notifications }) {
   return (
-    <AppLayout
+    <CustomAppLayout
       content={
         <DistributionsTable
           distributions={distributions}
@@ -134,11 +131,10 @@ function DistributionsPage({ distributions, selectedItems, setSelectedItems, onD
           ariaLabel="Breadcrumbs"
         />
       }
-      notifications={<Flashbar items={notifications} stackItems={true} i18nStrings={flashbarI18nStrings} />}
+      notifications={<Flashbar items={notifications} stackItems={true} />}
       navigation={<Navigation activeHref="#" />}
       navigationOpen={false}
       toolsHide={true}
-      ariaLabels={appLayoutAriaLabels}
       contentType="table"
     />
   );
@@ -146,27 +142,24 @@ function DistributionsPage({ distributions, selectedItems, setSelectedItems, onD
 
 function DistributionDetailsPage({ distribution, onDeleteInit, notifications }) {
   return (
-    <AppLayout
+    <CustomAppLayout
       content={
-        <ContentLayout
-          header={
-            <Header
-              variant="h1"
-              actions={
-                <SpaceBetween direction="horizontal" size="xs">
-                  <Button>Edit</Button>
-                  <Button onClick={onDeleteInit}>Delete</Button>
-                </SpaceBetween>
-              }
-            >
-              {distribution.id}
-            </Header>
-          }
-        >
+        <SpaceBetween size="m">
+          <Header
+            variant="h1"
+            actions={
+              <SpaceBetween direction="horizontal" size="xs">
+                <Button>Edit</Button>
+                <Button onClick={onDeleteInit}>Delete</Button>
+              </SpaceBetween>
+            }
+          >
+            {distribution.id}
+          </Header>
           <Container header={<Header variant="h2">Distribution settings</Header>}>
             <SettingsDetails distribution={distribution} />
           </Container>
-        </ContentLayout>
+        </SpaceBetween>
       }
       breadcrumbs={
         <BreadcrumbGroup
@@ -179,11 +172,10 @@ function DistributionDetailsPage({ distribution, onDeleteInit, notifications }) 
           ariaLabel="Breadcrumbs"
         />
       }
-      notifications={<Flashbar items={notifications} stackItems={true} i18nStrings={flashbarI18nStrings} />}
+      notifications={<Flashbar items={notifications} stackItems={true} />}
       navigation={<Navigation activeHref="#" />}
       navigationOpen={false}
       toolsHide={true}
-      ariaLabels={appLayoutAriaLabels}
     />
   );
 }
@@ -233,7 +225,7 @@ function DeleteModal({ distributions, visible, onDiscard, onDelete }) {
             Proceeding with this action will delete the
             {isMultiple ? ' distributions with all their content ' : ' distribution with all its content'} and can
             affect related resources.{' '}
-            <Link external={true} href="#">
+            <Link external={true} href="#" ariaLabel="Learn more about distributions management, opens in new tab">
               Learn more
             </Link>
           </Alert>

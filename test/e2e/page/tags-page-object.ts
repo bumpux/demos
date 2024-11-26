@@ -1,11 +1,11 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 import createWrapper from '@cloudscape-design/components/test-utils/selectors';
-import { BasePageObject } from '@cloudscape-design/browser-test-tools/page-objects';
+import BaseExamplePage from '../common/base-example-page';
 
 const DEBOUNCE_FILTERING_DELAY = 400;
 
-export default class PageObject extends BasePageObject {
+export default class PageObject extends BaseExamplePage {
   private tagEditorWrapper = createWrapper().findTagEditor();
 
   private findRow = (row: number) => this.tagEditorWrapper.findRow(row);
@@ -52,8 +52,8 @@ export default class PageObject extends BasePageObject {
   }
 
   async isMarkedForRemoval(row: number) {
-    const items = await this.browser.$$(this.findRow(row).findUndoButton().toSelector());
-    return items.length > 0;
+    const itemsCount = await this.getElementsCount(this.findRow(row).findUndoButton().toSelector());
+    return itemsCount > 0;
   }
 
   async getKeySuggestionsCount(row: number) {
@@ -83,9 +83,9 @@ export default class PageObject extends BasePageObject {
   }
 
   async getTags() {
-    const items = await this.browser.$$(this.tagEditorWrapper.findRows().toSelector());
+    const itemsCount = await this.getElementsCount(this.tagEditorWrapper.findRows().toSelector());
     const tags = [];
-    for (let index = 1; index <= items.length; index++) {
+    for (let index = 1; index <= itemsCount; index++) {
       tags.push(await this.getTag(index));
     }
     return tags;

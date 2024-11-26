@@ -11,7 +11,7 @@ const mergeArrays = (a, b) => (Array.isArray(a) ? a.concat(b) : undefined);
 
 const addEntryIteration = (entries, example) => {
   const filePath = `./src/pages/${example.path}/index`;
-  entries[example.path] = ['./src/common/apply-mode', filePath];
+  entries[example.path] = ['./src/common/apply-mode', filePath, './src/common/adjust-body-padding.js'];
   return entries;
 };
 
@@ -164,7 +164,7 @@ const createWebpackConfig = (config, { includeDevServer }) => {
           use: [MiniCssExtractPlugin.loader, 'css-loader'],
         },
         {
-          test: /\.png$/,
+          test: /\.(png|jpg)$/,
           use: ['url-loader'],
         },
         {

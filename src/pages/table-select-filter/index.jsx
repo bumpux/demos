@@ -5,16 +5,20 @@ import { createRoot } from 'react-dom/client';
 import { useCollection } from '@cloudscape-design/collection-hooks';
 import { COLUMN_DEFINITIONS, SEARCHABLE_COLUMNS, CONTENT_DISPLAY_OPTIONS } from './table-select-filter-config';
 import { Preferences } from '../commons/table-config';
-import { Button, Input, Pagination, SpaceBetween, Select, Table } from '@cloudscape-design/components';
+import {
+  Button,
+  ButtonDropdown,
+  Input,
+  Pagination,
+  SpaceBetween,
+  Select,
+  Table,
+  LiveRegion,
+} from '@cloudscape-design/components';
 import { Navigation, Breadcrumbs, ToolsContent } from './table-select-filter-components';
 import '../../styles/table-select.scss';
 import DATA from '../../resources/instances';
-import {
-  getTextFilterCounterText,
-  getHeaderCounterText,
-  paginationAriaLabels,
-  renderAriaLive,
-} from '../../i18n-strings';
+import { getTextFilterCounterText, getHeaderCounterText, renderAriaLive } from '../../i18n-strings';
 import { CustomAppLayout, Notifications, TableEmptyState, TableNoMatchState } from '../commons/common-components';
 import { FullPageHeader } from '../commons';
 import { useColumnWidths } from '../commons/use-column-widths';
@@ -56,7 +60,7 @@ function TableSelectFilter({ loadHelpPanelContent }) {
   const [columnDefinitions, saveWidths] = useColumnWidths('React-TableSelectFilter-Widths', COLUMN_DEFINITIONS);
   const [engine, setEngine] = useState(defaultEngine);
   const [instanceClass, setInstanceClass] = useState(defaultClass);
-  const [preferences, setPreferences] = useLocalStorage('React-DBInstancesTable-Preferences', {
+  const [preferences, setPreferences] = useLocalStorage('React-TableSelectFilter-Preferences', {
     pageSize: 30,
     contentDisplay: [
       { id: 'id', visible: true },
@@ -109,6 +113,7 @@ function TableSelectFilter({ loadHelpPanelContent }) {
   return (
     <Table
       {...collectionProps}
+      enableKeyboardNavigation={true}
       columnDefinitions={columnDefinitions}
       columnDisplay={preferences.contentDisplay}
       items={items}
@@ -119,6 +124,7 @@ function TableSelectFilter({ loadHelpPanelContent }) {
       wrapLines={preferences.wrapLines}
       stripedRows={preferences.stripedRows}
       contentDensity={preferences.contentDensity}
+      stickyColumns={preferences.stickyColumns}
       selectionType="single"
       ariaLabels={{
         itemSelectionLabel: (data, row) => `Select DB instance ${row.id}`,
@@ -133,7 +139,25 @@ function TableSelectFilter({ loadHelpPanelContent }) {
           counter={getHeaderCounterText(DATA, collectionProps.selectedItems)}
           actions={
             <SpaceBetween size="xs" direction="horizontal">
-              <Button disabled={collectionProps.selectedItems.length === 0}>Instance actions</Button>
+              <ButtonDropdown
+                disabled={collectionProps.selectedItems.length === 0}
+                items={[
+                  {
+                    id: 'terminate',
+                    text: 'Terminate DB instance',
+                    disabled: true,
+                    disabledReason: 'No permission granted',
+                  },
+                  {
+                    id: 'create-replica',
+                    text: 'Create DB instance replica',
+                    disabled: true,
+                    disabledReason: 'No permission granted',
+                  },
+                ]}
+              >
+                Instance actions
+              </ButtonDropdown>
               <Button>Restore from S3</Button>
               <Button variant="primary">Launch DB instance</Button>
             </SpaceBetween>
@@ -151,8 +175,8 @@ function TableSelectFilter({ loadHelpPanelContent }) {
               onChange={event => {
                 actions.setFiltering(event.detail.value);
               }}
+              ariaLabel="Find instances"
               placeholder="Find instances"
-              label="Find instances"
               clearAriaLabel="clear"
               ariaDescribedby={null}
             />
@@ -160,6 +184,7 @@ function TableSelectFilter({ loadHelpPanelContent }) {
           <div className="select-filter">
             <Select
               data-testid="engine-filter"
+              inlineLabelText="Filter engine"
               options={selectEngineOptions}
               selectedAriaLabel="Selected"
               selectedOption={engine}
@@ -172,6 +197,7 @@ function TableSelectFilter({ loadHelpPanelContent }) {
           </div>
           <div className="select-filter">
             <Select
+              inlineLabelText="Filter class"
               data-testid="class-filter"
               options={selectClassOptions}
               selectedAriaLabel="Selected"
@@ -183,14 +209,14 @@ function TableSelectFilter({ loadHelpPanelContent }) {
               expandToViewport={true}
             />
           </div>
-          <div aria-live="polite">
+          <LiveRegion>
             {(filterProps.filteringText || engine !== defaultEngine || instanceClass !== defaultClass) && (
               <span className="filtering-results">{getTextFilterCounterText(filteredItemsCount)}</span>
             )}
-          </div>
+          </LiveRegion>
         </div>
       }
-      pagination={<Pagination {...paginationProps} ariaLabels={paginationAriaLabels(paginationProps.pagesCount)} />}
+      pagination={<Pagination {...paginationProps} />}
       preferences={
         <Preferences
           preferences={preferences}

@@ -17,9 +17,9 @@ import {
 import { FullPageHeader } from '../commons';
 import {
   getTextFilterCounterText,
-  paginationAriaLabels,
   distributionTableAriaLabels,
   getHeaderCounterText,
+  renderAriaLive,
 } from '../../i18n-strings';
 import { useLocalStorage } from '../commons/use-local-storage';
 import '../../styles/base.scss';
@@ -59,10 +59,11 @@ function DetailsCards({ loadHelpPanelContent }) {
       selectionType="multi"
       variant="full-page"
       ariaLabels={distributionTableAriaLabels}
+      renderAriaLive={renderAriaLive}
       header={
         <FullPageHeader
           selectedItemsCount={collectionProps.selectedItems.length}
-          counter={getHeaderCounterText(distributions, collectionProps.selectedItems)}
+          counter={!loading && getHeaderCounterText(distributions, collectionProps.selectedItems)}
           onInfoLinkClick={loadHelpPanelContent}
         />
       }
@@ -76,13 +77,7 @@ function DetailsCards({ loadHelpPanelContent }) {
           disabled={loading}
         />
       }
-      pagination={
-        <Pagination
-          {...paginationProps}
-          ariaLabels={paginationAriaLabels(paginationProps.pagesCount)}
-          disabled={loading}
-        />
-      }
+      pagination={<Pagination {...paginationProps} disabled={loading} />}
       preferences={
         <CollectionPreferences
           title="Preferences"

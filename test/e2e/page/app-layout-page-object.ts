@@ -1,11 +1,11 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 import createWrapper from '@cloudscape-design/components/test-utils/selectors';
-import { BasePageObject } from '@cloudscape-design/browser-test-tools/page-objects';
+import BaseExamplePage from '../common/base-example-page';
 const page = createWrapper();
 const toolsPanelWrapper = page.findAppLayout().findTools();
 
-export default class Page extends BasePageObject {
+export default class Page extends BaseExamplePage {
   async hasActiveLink() {
     const activeLinksCount = await this.getElementsCount(page.findSideNavigation().findActiveLink().toSelector());
     return activeLinksCount === 1;
@@ -22,8 +22,15 @@ export default class Page extends BasePageObject {
     return this.getElementsCount(page.findSideNavigation().findItemByIndex(index).findItems().toSelector());
   }
 
+  // should be used for info links with aria-label specified
   infoLinkSelector() {
     return page.findLink('[aria-label*=Information]').toSelector();
+  }
+
+  // should be used for info links with aria-label delivered from context
+  // (inside header / form field)
+  contextInfoLinkSelector() {
+    return page.findLink('[aria-labelledby*=link-info]').toSelector();
   }
 
   // Flash

@@ -8,8 +8,9 @@ import {
   Select,
   Input,
   Autosuggest,
+  ButtonDropdown,
 } from '@cloudscape-design/components';
-import { contentDisplayPreferenceI18nStrings, createTableSortLabelFn } from '../../i18n-strings';
+import { createTableSortLabelFn } from '../../i18n-strings';
 
 const rawColumns = [
   {
@@ -74,6 +75,23 @@ const rawColumns = [
     header: 'Origin',
     cell: item => item.origin,
     minWidth: 100,
+  },
+  {
+    id: 'actions',
+    header: 'Actions',
+    minWidth: 100,
+    cell: item => (
+      <ButtonDropdown
+        variant="inline-icon"
+        ariaLabel={`${item.id} actions`}
+        expandToViewport={true}
+        items={[
+          { id: 'view', text: 'View details' },
+          { id: 'edit', text: 'Edit' },
+          { id: 'delete', text: 'Delete' },
+        ]}
+      />
+    ),
   },
 ];
 
@@ -145,6 +163,12 @@ const editableColumns = {
           />
         );
       },
+      disabledReason: item => {
+        if (item.deliveryMethod === 'RTMP') {
+          return 'You cannot change the domain name of an RTMP distribution.';
+        }
+        return undefined;
+      },
     },
     cell: item => {
       return item.domainName;
@@ -203,6 +227,7 @@ const CONTENT_DISPLAY_OPTIONS = [
   { id: 'priceClass', label: 'Price class' },
   { id: 'logging', label: 'Logging' },
   { id: 'origin', label: 'Origin' },
+  { id: 'actions', label: 'Actions' },
 ];
 
 export const PAGE_SIZE_OPTIONS = [
@@ -222,10 +247,12 @@ export const DEFAULT_PREFERENCES = {
     { id: 'priceClass', visible: false },
     { id: 'logging', visible: false },
     { id: 'origin', visible: false },
+    { id: 'actions', visible: true },
   ],
   wrapLines: false,
   stripedRows: false,
   contentDensity: 'comfortable',
+  stickyColumns: { first: 0, last: 1 },
 };
 
 export const Preferences = ({
@@ -236,33 +263,32 @@ export const Preferences = ({
   contentDisplayOptions = CONTENT_DISPLAY_OPTIONS,
 }) => (
   <CollectionPreferences
-    title="Preferences"
-    confirmLabel="Confirm"
-    cancelLabel="Cancel"
     disabled={disabled}
     preferences={preferences}
     onConfirm={({ detail }) => setPreferences(detail)}
-    pageSizePreference={{
-      title: 'Page size',
-      options: pageSizeOptions,
-    }}
-    wrapLinesPreference={{
-      label: 'Wrap lines',
-      description: 'Select to see all the text and wrap the lines',
-    }}
-    stripedRowsPreference={{
-      label: 'Striped rows',
-      description: 'Select to add alternating shaded rows',
-    }}
-    contentDensityPreference={{
-      label: 'Compact mode',
-      description: 'Select to display content in a denser, more compact mode',
-    }}
-    contentDisplayPreference={{
-      title: 'Column preferences',
-      description: 'Customize the columns visibility and order.',
-      options: contentDisplayOptions,
-      ...contentDisplayPreferenceI18nStrings,
+    pageSizePreference={{ options: pageSizeOptions }}
+    wrapLinesPreference={{}}
+    stripedRowsPreference={{}}
+    contentDensityPreference={{}}
+    contentDisplayPreference={{ options: contentDisplayOptions }}
+    stickyColumnsPreference={{
+      firstColumns: {
+        title: 'Stick first column(s)',
+        description: 'Keep the first column(s) visible while horizontally scrolling the table content.',
+        options: [
+          { label: 'None', value: 0 },
+          { label: 'First column', value: 1 },
+          { label: 'First two columns', value: 2 },
+        ],
+      },
+      lastColumns: {
+        title: 'Stick last column',
+        description: 'Keep the last column visible while horizontally scrolling the table content.',
+        options: [
+          { label: 'None', value: 0 },
+          { label: 'Last column', value: 1 },
+        ],
+      },
     }}
   />
 );

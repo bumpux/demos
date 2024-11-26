@@ -4,12 +4,7 @@ import React from 'react';
 import { useCollection } from '@cloudscape-design/collection-hooks';
 import { Button, Pagination, Table, TextFilter, SpaceBetween, Link } from '@cloudscape-design/components';
 import { TableEmptyState, TableNoMatchState } from '../commons/common-components';
-import {
-  paginationAriaLabels,
-  getTextFilterCounterText,
-  getHeaderCounterText,
-  renderAriaLive,
-} from '../../i18n-strings';
+import { getTextFilterCounterText, getHeaderCounterText, renderAriaLive } from '../../i18n-strings';
 import { FullPageHeader } from '../commons';
 import ItemState from '../delete-with-simple-confirmation/item-state';
 
@@ -60,6 +55,7 @@ export default function InstancesTable({ instances, selectedItems, onSelectionCh
   return (
     <Table
       {...collectionProps}
+      enableKeyboardNavigation={true}
       selectedItems={selectedItems}
       onSelectionChange={onSelectionChange}
       columnDefinitions={COLUMN_DEFINITIONS}
@@ -98,7 +94,7 @@ export default function InstancesTable({ instances, selectedItems, onSelectionCh
           countText={getTextFilterCounterText(filteredItemsCount)}
         />
       }
-      pagination={<Pagination {...paginationProps} ariaLabels={paginationAriaLabels(paginationProps.pagesCount)} />}
+      pagination={<Pagination {...paginationProps} />}
     />
   );
 }

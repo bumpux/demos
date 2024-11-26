@@ -11,7 +11,6 @@ import { Breadcrumbs, ToolsContent } from '../table/common-components';
 import { CustomAppLayout, Navigation, Notifications, TableNoMatchState } from '../commons/common-components';
 import { FullPageHeader } from '../commons';
 import {
-  paginationAriaLabels,
   distributionTableAriaLabels,
   getHeaderCounterServerSideText,
   getTextFilterCounterServerSideText,
@@ -29,7 +28,10 @@ const DEFAULT_FILTERING_QUERY = { tokens: [], operation: 'and' };
 
 function ServerSidePropertyFilterTable({ columnDefinitions, saveWidths, loadHelpPanelContent }) {
   const [selectedItems, setSelectedItems] = useState([]);
-  const [preferences, setPreferences] = useLocalStorage('React-DistributionsTable-Preferences', DEFAULT_PREFERENCES);
+  const [preferences, setPreferences] = useLocalStorage(
+    'React-ServerSideTablePropertyFilter-Preferences',
+    DEFAULT_PREFERENCES
+  );
   const [sortingDescending, setSortingDescending] = useState(false);
   const [currentPageIndex, setCurrentPageIndex] = useState(1);
   const [filteringQuery, setFilteringQuery] = useState(DEFAULT_FILTERING_QUERY);
@@ -46,7 +48,7 @@ function ServerSidePropertyFilterTable({ columnDefinitions, saveWidths, loadHelp
       sortingDescending,
     },
     filtering: {
-      filteringTokens: filteringQuery.tokens,
+      filteringTokens: filteringQuery.tokenGroups ?? filteringQuery.tokens,
       filteringOperation: filteringQuery.operation,
     },
   };
@@ -75,6 +77,7 @@ function ServerSidePropertyFilterTable({ columnDefinitions, saveWidths, loadHelp
 
   return (
     <Table
+      enableKeyboardNavigation={true}
       loading={loading}
       selectedItems={selectedItems}
       items={items}
@@ -94,10 +97,11 @@ function ServerSidePropertyFilterTable({ columnDefinitions, saveWidths, loadHelp
       wrapLines={preferences.wrapLines}
       stripedRows={preferences.stripedRows}
       contentDensity={preferences.contentDensity}
+      stickyColumns={preferences.stickyColumns}
       header={
         <FullPageHeader
           selectedItemsCount={selectedItems.length}
-          counter={getHeaderCounterServerSideText(totalCount, selectedItems.length)}
+          counter={!loading && getHeaderCounterServerSideText(totalCount, selectedItems.length)}
           onInfoLinkClick={loadHelpPanelContent}
         />
       }
@@ -115,6 +119,7 @@ function ServerSidePropertyFilterTable({ columnDefinitions, saveWidths, loadHelp
           customGroupsText={[{ group: 'tags', properties: 'Tags', values: 'Tags values' }]}
           countText={getTextFilterCounterServerSideText(items, pagesCount, pageSize)}
           expandToViewport={true}
+          enableTokenGroups={true}
         />
       }
       pagination={
@@ -123,7 +128,6 @@ function ServerSidePropertyFilterTable({ columnDefinitions, saveWidths, loadHelp
           disabled={loading}
           currentPageIndex={serverPageIndex}
           onChange={event => setCurrentPageIndex(event.detail.currentPageIndex)}
-          ariaLabels={paginationAriaLabels(pagesCount)}
         />
       }
       preferences={<Preferences preferences={preferences} setPreferences={setPreferences} />}
@@ -132,7 +136,10 @@ function ServerSidePropertyFilterTable({ columnDefinitions, saveWidths, loadHelp
 }
 
 function App() {
-  const [columnDefinitions, saveWidths] = useColumnWidths('React-TableServerSide-Widths', COLUMN_DEFINITIONS);
+  const [columnDefinitions, saveWidths] = useColumnWidths(
+    'React-ServerSideTablePropertyFilter-Widths',
+    COLUMN_DEFINITIONS
+  );
   const [toolsOpen, setToolsOpen] = useState(false);
   const appLayout = useRef();
   return (

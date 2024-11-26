@@ -13,7 +13,6 @@ import { FullPageHeader } from '../commons';
 import { useLocalStorage } from '../commons/use-local-storage';
 import {
   getHeaderCounterServerSideText,
-  paginationAriaLabels,
   distributionTableAriaLabels,
   getTextFilterCounterServerSideText,
   renderAriaLive,
@@ -25,7 +24,7 @@ import '../../styles/base.scss';
 
 function ServerSideTable({ columnDefinitions, saveWidths, loadHelpPanelContent }) {
   const [selectedItems, setSelectedItems] = useState([]);
-  const [preferences, setPreferences] = useLocalStorage('React-DistributionsTable-Preferences', DEFAULT_PREFERENCES);
+  const [preferences, setPreferences] = useLocalStorage('React-ServerSideTable-Preferences', DEFAULT_PREFERENCES);
   const [descendingSorting, setDescendingSorting] = useState(false);
   const [currentPageIndex, setCurrentPageIndex] = useState(1);
   const [filteringText, setFilteringText] = useState('');
@@ -64,6 +63,7 @@ function ServerSideTable({ columnDefinitions, saveWidths, loadHelpPanelContent }
 
   return (
     <Table
+      enableKeyboardNavigation={true}
       loading={loading}
       selectedItems={selectedItems}
       items={items}
@@ -83,10 +83,11 @@ function ServerSideTable({ columnDefinitions, saveWidths, loadHelpPanelContent }
       wrapLines={preferences.wrapLines}
       stripedRows={preferences.stripedRows}
       contentDensity={preferences.contentDensity}
+      stickyColumns={preferences.stickyColumns}
       header={
         <FullPageHeader
           selectedItemsCount={selectedItems.length}
-          counter={getHeaderCounterServerSideText(totalCount, selectedItems.length)}
+          counter={!loading && getHeaderCounterServerSideText(totalCount, selectedItems.length)}
           onInfoLinkClick={loadHelpPanelContent}
         />
       }
@@ -109,7 +110,6 @@ function ServerSideTable({ columnDefinitions, saveWidths, loadHelpPanelContent }
           currentPageIndex={serverPageIndex}
           disabled={loading}
           onChange={event => setCurrentPageIndex(event.detail.currentPageIndex)}
-          ariaLabels={paginationAriaLabels(pagesCount)}
         />
       }
       preferences={<Preferences preferences={preferences} setPreferences={setPreferences} />}

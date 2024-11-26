@@ -32,6 +32,13 @@ describe('S3 Resource Selector - Read mode', () => {
   };
 
   test(
+    'Has header in form header slot',
+    setupTest(async page => {
+      await expect(page.getHeader()).resolves.toBe('Run simulation');
+    })
+  );
+
+  test(
     'does not allow selecting buckets and folders',
     setupTest(async page => {
       await page.openBrowseDialog();
@@ -74,9 +81,12 @@ describe('S3 Resource Selector - Read mode', () => {
     'shows alert about non-existing objects',
     setupTest(async page => {
       await page.setUriInputValue('s3://totally/fictional');
+      // click somewhere to blur the input and trigger validation
+      await page.click(createWrapper().findHeader().toSelector());
       await expect(page.getAlertText()).resolves.toEqual(
         'Resource "s3://totally/fictional" cannot be found: "totally" bucket doesn\'t exist'
       );
+
       await page.click(s3ResourceSelector.findAlertSlot().findAlert().findDismissButton().toSelector());
       await expect(page.getAlertText()).resolves.toEqual(null);
     })
@@ -86,6 +96,8 @@ describe('S3 Resource Selector - Read mode', () => {
     'shows alert about missing versions',
     setupTest(async page => {
       await page.setUriInputValue('s3://bucket-officia/particle-1ns.sim');
+      // click somewhere to blur the input and trigger validation
+      await page.click(createWrapper().findHeader().toSelector());
       await expect(page.getAlertText()).resolves.toContain(
         'You might not have permissions to retrieve object versions.'
       );

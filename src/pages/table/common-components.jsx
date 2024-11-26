@@ -1,7 +1,8 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 import React from 'react';
-import { BreadcrumbGroup, HelpPanel } from '@cloudscape-design/components';
+import { Box, BreadcrumbGroup, Button, HelpPanel, SpaceBetween, LiveRegion } from '@cloudscape-design/components';
+import formatDate from 'date-fns/format';
 import { resourcesBreadcrumbs } from '../../common/breadcrumbs';
 import { ExternalLinkGroup } from '../commons';
 
@@ -43,3 +44,27 @@ export const EC2ToolsContent = () => (
     </p>
   </HelpPanel>
 );
+
+export const ManualRefresh = ({ onRefresh, loading, lastRefresh, disabled }) => {
+  return (
+    <SpaceBetween data-testid="manual-refresh" direction="horizontal" size="xs" alignItems="center">
+      {lastRefresh && (
+        <Box variant="p" fontSize="body-s" padding="n" color="text-status-inactive" textAlign="right">
+          <LiveRegion>
+            Last updated
+            <br />
+            {formatDate(lastRefresh, "MMMM d, yyyy, HH:mm ('UTC'xxx)")}
+          </LiveRegion>
+        </Box>
+      )}
+      <Button
+        iconName="refresh"
+        ariaLabel="Refresh"
+        loadingText="Refreshing table content"
+        loading={loading}
+        onClick={onRefresh}
+        disabled={disabled}
+      />
+    </SpaceBetween>
+  );
+};

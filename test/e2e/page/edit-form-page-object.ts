@@ -9,8 +9,13 @@ export default class Page extends AppLayoutPage {
   isAdditionSettingVisible() {
     return this.isDisplayed(page.findContainer().findFooter().findExpandableSection().findContent().toSelector());
   }
+  getHeader() {
+    return this.getText(createWrapper(page.findForm().findHeader().toSelector()).findHeader().find('h1').toSelector());
+  }
   async openAdditionalTools() {
-    await this.click(page.findContainer().findFooter().findExpandableSection().findHeader().toSelector());
+    await this.scrollIntoViewAndClick(
+      page.findContainer().findFooter().findExpandableSection().findHeader().toSelector()
+    );
   }
   async openMainInfoLink() {
     await this.click('#main-info-link');
@@ -25,6 +30,6 @@ export default class Page extends AppLayoutPage {
   }
 
   async openRootObjectInfoLink() {
-    await this.click('#root-info-link');
+    await this.scrollIntoViewAndClick('#root-info-link');
   }
 }

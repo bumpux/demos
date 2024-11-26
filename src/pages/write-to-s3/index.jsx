@@ -4,19 +4,16 @@ import React, { Component } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import {
-  AppLayout,
   BreadcrumbGroup,
   Button,
   Container,
-  ContentLayout,
   Form,
   Header,
   FormField,
   SpaceBetween,
   S3ResourceSelector,
 } from '@cloudscape-design/components';
-import { Navigation, Notifications } from '../commons/common-components';
-import { appLayoutAriaLabels, s3ResourceSelectorI18nStrings } from '../../i18n-strings';
+import { CustomAppLayout, Navigation, Notifications } from '../commons/common-components';
 import { writeToS3Breadcrumbs } from '../../common/breadcrumbs';
 import { getItems, requestAsyncAttribute } from '../../common/s3-resource-selector/mock-request';
 import { ErrorAlert } from '../read-from-s3/common';
@@ -24,7 +21,6 @@ import { ErrorAlert } from '../read-from-s3/common';
 import '../../styles/base.scss';
 
 const i18nStringsWriteMode = {
-  ...s3ResourceSelectorI18nStrings,
   modalTitle: 'Choose destination for simulations',
   inContextInputPlaceholder: 's3://bucket/prefix',
 };
@@ -112,33 +108,31 @@ class S3ResourceSelectorContainer extends React.Component {
 class App extends Component {
   content() {
     return (
-      <ContentLayout header={<Header variant="h1">Create simulation</Header>}>
-        <form onSubmit={event => event.preventDefault()}>
-          <Form
-            actions={
-              <SpaceBetween direction="horizontal" size="xs">
-                <Button variant="link">Cancel</Button>
-                <Button variant="primary">Create</Button>
-              </SpaceBetween>
-            }
-          >
-            <Container header={<Header variant="h2">Simulations</Header>}>
-              <S3ResourceSelectorContainer />
-            </Container>
-          </Form>
-        </form>
-      </ContentLayout>
+      <form onSubmit={event => event.preventDefault()}>
+        <Form
+          header={<Header variant="h1">Create simulation</Header>}
+          actions={
+            <SpaceBetween direction="horizontal" size="xs">
+              <Button variant="link">Cancel</Button>
+              <Button variant="primary">Create</Button>
+            </SpaceBetween>
+          }
+        >
+          <Container header={<Header variant="h2">Simulations</Header>}>
+            <S3ResourceSelectorContainer />
+          </Container>
+        </Form>
+      </form>
     );
   }
 
   render() {
     return (
-      <AppLayout
+      <CustomAppLayout
         contentType="form"
         content={this.content()}
         breadcrumbs={<Breadcrumbs />}
         navigation={<Navigation activeHref="#/distributions" />}
-        ariaLabels={appLayoutAriaLabels}
         toolsHide={true}
         notifications={<Notifications />}
       />

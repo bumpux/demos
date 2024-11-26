@@ -3,10 +3,8 @@
 import React, { createRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import {
-  AppLayout,
   Button,
   Container,
-  ContentLayout,
   Header,
   Pagination,
   SpaceBetween,
@@ -32,14 +30,15 @@ import {
   SettingsDetails,
   TagsTable,
 } from '../details/common-components';
-import { Navigation, TableEmptyState, TableNoMatchState, InfoLink, Notifications } from '../commons/common-components';
 import {
-  appLayoutAriaLabels,
-  getHeaderCounterText,
-  getTextFilterCounterText,
-  paginationAriaLabels,
-  renderAriaLive,
-} from '../../i18n-strings';
+  CustomAppLayout,
+  Navigation,
+  TableEmptyState,
+  TableNoMatchState,
+  InfoLink,
+  Notifications,
+} from '../commons/common-components';
+import { getHeaderCounterText, getTextFilterCounterText, renderAriaLive } from '../../i18n-strings';
 import ToolsContent from '../details/tools-content';
 import { logsTableAriaLabels } from '../details-hub/commons';
 import '../../styles/base.scss';
@@ -47,11 +46,7 @@ import '../../styles/base.scss';
 const Details = ({ loadHelpPanelContent }) => (
   <Container
     header={
-      <Header
-        variant="h2"
-        info={<InfoLink onFollow={() => loadHelpPanelContent(1)} ariaLabel={'Information about details.'} />}
-        actions={<Button>Edit</Button>}
-      >
+      <Header variant="h2" info={<InfoLink onFollow={() => loadHelpPanelContent(1)} />} actions={<Button>Edit</Button>}>
         Details
       </Header>
     }
@@ -75,6 +70,7 @@ function LogsTable() {
 
   return (
     <Table
+      enableKeyboardNavigation={true}
       className="logs-table"
       {...collectionProps}
       loading={logsLoading}
@@ -88,7 +84,7 @@ function LogsTable() {
       onSelectionChange={evt => setSelectedItems(evt.detail.selectedItems)}
       header={
         <Header
-          counter={getHeaderCounterText(logs, selectedItems)}
+          counter={!logsLoading && getHeaderCounterText(logs, selectedItems)}
           actions={
             <SpaceBetween direction="horizontal" size="xs">
               <Button disabled={!isOnlyOneSelected}>View</Button>
@@ -109,7 +105,7 @@ function LogsTable() {
           countText={getTextFilterCounterText(filteredItemsCount)}
         />
       }
-      pagination={<Pagination {...paginationProps} ariaLabels={paginationAriaLabels(paginationProps.pagesCount)} />}
+      pagination={<Pagination {...paginationProps} />}
     />
   );
 }
@@ -161,28 +157,24 @@ class App extends React.Component {
     ];
 
     return (
-      <AppLayout
+      <CustomAppLayout
         ref={this.appLayout}
         content={
-          <ContentLayout
-            header={
-              <PageHeader
-                buttons={[{ text: 'Actions', items: INSTANCE_DROPDOWN_ITEMS }, { text: 'Edit' }, { text: 'Delete' }]}
-              />
-            }
-          >
+          <SpaceBetween size="m">
+            <PageHeader
+              buttons={[{ text: 'Actions', items: INSTANCE_DROPDOWN_ITEMS }, { text: 'Edit' }, { text: 'Delete' }]}
+            />
             <SpaceBetween size="l">
               <GeneralConfig />
               <Tabs tabs={tabs} ariaLabel="Resource details" />
             </SpaceBetween>
-          </ContentLayout>
+          </SpaceBetween>
         }
         breadcrumbs={<Breadcrumbs />}
         navigation={<Navigation activeHref="#/distributions" />}
         tools={ToolsContent[this.state.toolsIndex]}
         toolsOpen={this.state.toolsOpen}
         onToolsChange={({ detail }) => this.setState({ toolsOpen: detail.open })}
-        ariaLabels={appLayoutAriaLabels}
         notifications={<Notifications />}
       />
     );

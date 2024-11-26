@@ -44,6 +44,10 @@
     "title": "Form validation"
   },
   {
+    "path": "product-detail-page",
+    "title": "Product detail page"
+  },
+  {
     "path": "server-side-table",
     "title": "Table view (server-side)"
   },
@@ -64,12 +68,20 @@
     "title": "Table view with date range picker filter"
   },
   {
+    "path": "table-saved-filters",
+    "title": "Table view with saved filter sets"
+  },
+  {
     "path": "table",
     "title": "Table view"
   },
   {
     "path": "table-editable",
     "title": "Table view with inline editing"
+  },
+  {
+    "path": "table-expandable",
+    "title": "Table view with expandable rows"
   },
   {
     "path": "manage-tags",

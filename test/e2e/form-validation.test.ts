@@ -26,6 +26,13 @@ describe('Form validation example', () => {
   );
 
   test(
+    'Has header in form header slot',
+    setupTest(async page => {
+      await expect(page.getHeader()).resolves.toBe('Create distribution');
+    })
+  );
+
+  test(
     'Navigation panel opens properly and expandable sections are expanded',
     setupTest(async formTemplatePage => {
       await formTemplatePage.openSideNavigation();
@@ -180,39 +187,61 @@ describe('Form validation example', () => {
   test(
     'Contains expected server side error messages',
     setupTest(async page => {
+      await page.submitForm();
       await expect(page.getFormErrorMessages()).resolves.toEqual(
         expect.arrayContaining([
-          'CloudFront can’t create the new distribution because of a permissions problem with your IAM role.',
+          'You have reached the maximum amount of distributions you can create. Learn more about distribution limits ',
         ])
       );
     })
   );
 
   test(
-    'Contains expected error messages',
+    'Contains expected error messages in distributions panel',
     setupTest(async page => {
+      await page.submitForm();
       await expect(page.getDistributionPanelErrorMessages()).resolves.toEqual(
         expect.arrayContaining([
-          'You must specify a root object.',
-          'You must specify at least one alternative domain name.',
-          'You must specify a S3 bucket.',
-          'Invalid date format.',
-          'Invalid time format.',
+          'Root object is required.',
+          'S3 bucket is required.',
+          'Certificate expiry date is required.',
+          'Certificate expiry time is required.',
         ])
       );
     })
   );
 
   test(
-    'Contains expected error messages',
+    'Contains expected error messages in origin panel',
     setupTest(async page => {
+      await page.submitForm();
       await expect(page.getOriginSettingsErrorMessages()).resolves.toEqual(
         expect.arrayContaining([
-          'You must specify a content origin.',
-          'You must specify a path to content.',
-          'You must specify a origin ID.',
+          'Origin ID is required.',
+          'Custom header name is required.',
+          'Custom header value is required.',
         ])
       );
+    })
+  );
+
+  test(
+    'Contains expected warning messages in origin panel',
+    setupTest(async page => {
+      await page.setCustomHeaderFieldText(1, 1, 'value with empty character'); // custom header name
+      await page.setCustomHeaderFieldText(1, 2, 'value with empty character'); // custom header value
+      await expect(page.getOriginSettingsWarningMessages()).resolves.toEqual([
+        'The name has empty (space) characters.',
+        'The value has empty (space) characters.',
+      ]);
+    })
+  );
+
+  test(
+    'Top most error is focused',
+    setupTest(async page => {
+      await page.submitForm();
+      await expect(page.isRootInputFocused()).resolves.toBe(true);
     })
   );
 });

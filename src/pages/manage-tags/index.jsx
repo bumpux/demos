@@ -4,22 +4,21 @@ import React, { Component, createRef } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import {
-  AppLayout,
   BreadcrumbGroup,
   Button,
   Container,
-  ContentLayout,
   Form,
   Header,
   SpaceBetween,
   TagEditor,
 } from '@cloudscape-design/components';
-import { Navigation, InfoLink, Notifications } from '../commons/common-components';
-import { appLayoutAriaLabels, tagEditorI18nStrings } from '../../i18n-strings';
+import { CustomAppLayout, Navigation, InfoLink, Notifications } from '../commons/common-components';
 import { resourceManageTagsBreadcrumbs } from '../../common/breadcrumbs';
 import ToolsContent from './components/tools-content';
 
 import '../../styles/base.scss';
+
+import { tagEditorI18nStrings } from '../../i18n-strings/tag-editor';
 
 const Breadcrumbs = () => (
   <BreadcrumbGroup items={resourceManageTagsBreadcrumbs} expandAriaLabel="Show path" ariaLabel="Breadcrumbs" />
@@ -59,7 +58,8 @@ class App extends Component {
       this.appLayout.current?.focusToolsClose();
     };
     return (
-      <ContentLayout header={<Header variant="h1">Manage tags</Header>}>
+      <SpaceBetween size="m">
+        <Header variant="h1">Manage tags</Header>
         <form onSubmit={event => event.preventDefault()}>
           <Form
             actions={
@@ -73,7 +73,7 @@ class App extends Component {
               header={
                 <Header
                   variant="h2"
-                  info={<InfoLink onFollow={handleInfoClick} ariaLabel={'Information about tags.'} />}
+                  info={<InfoLink onFollow={handleInfoClick} />}
                   description="A tag is a label that you assign to an AWS resource. Each tag consists of a key and an optional value. You can use tags to search and filter your resources or track your AWS costs."
                 >
                   Tags
@@ -81,23 +81,23 @@ class App extends Component {
               }
             >
               <TagEditor
-                i18nStrings={tagEditorI18nStrings}
                 tags={this.state.tags}
                 onChange={this.onChange.bind(this)}
                 keysRequest={() => window.FakeServer.GetTagKeys().then(({ TagKeys }) => TagKeys)}
                 valuesRequest={key => window.FakeServer.GetTagValues(key).then(({ TagValues }) => TagValues)}
                 loading={this.state.loading}
+                i18nStrings={tagEditorI18nStrings}
               />
             </Container>
           </Form>
         </form>
-      </ContentLayout>
+      </SpaceBetween>
     );
   }
 
   render() {
     return (
-      <AppLayout
+      <CustomAppLayout
         ref={this.appLayout}
         contentType="form"
         content={this.content()}
@@ -106,7 +106,6 @@ class App extends Component {
         toolsOpen={this.state.toolsOpen}
         onToolsChange={({ detail }) => this.setState({ toolsOpen: detail.open })}
         tools={ToolsContent[this.state.toolsIndex]}
-        ariaLabels={appLayoutAriaLabels}
         notifications={<Notifications />}
       />
     );

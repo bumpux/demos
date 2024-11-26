@@ -13,6 +13,7 @@ import {
   RadioGroup,
   SpaceBetween,
   Select,
+  Slider,
 } from '@cloudscape-design/components';
 import { InfoLink } from '../../commons/common-components';
 import { CLASS_OPTIONS, TIME_ZONES, AVAILABILITY_ZONES, STORAGE_TYPES, TOOLS_CONTENT } from '../steps-config';
@@ -38,6 +39,18 @@ const InstanceOptions = ({
   const onInstanceClassChange = getFieldOnChange('select', 'instanceClass', onChange);
   const onStorageTypeChange = getFieldOnChange('radio', 'storageType', onChange);
   const onStorageChange = getFieldOnChange('input', 'storage', onChange);
+  const onStorageSliderChange = getFieldOnChange('slider', 'storage', onChange);
+
+  const validateStorageValue = (value, range) => {
+    if (value === undefined) {
+      return '';
+    }
+    if (value < range[0] || value > range[1]) {
+      return 'Enter a valid storage amount.';
+    }
+
+    return '';
+  };
 
   return (
     <Container
@@ -75,12 +88,7 @@ const InstanceOptions = ({
             </FormField>
             <FormField
               label="IAM DB authentication"
-              info={
-                <InfoLink
-                  onFollow={() => setHelpPanelContent(detailsToolsContent.iamAuth)}
-                  ariaLabel={'Information about IAM DB authentication.'}
-                />
-              }
+              info={<InfoLink onFollow={() => setHelpPanelContent(detailsToolsContent.iamAuth)} />}
               stretch={true}
             >
               <RadioGroup
@@ -106,12 +114,7 @@ const InstanceOptions = ({
       <SpaceBetween size="l">
         <FormField
           label="Class"
-          info={
-            <InfoLink
-              onFollow={() => setHelpPanelContent(detailsToolsContent.instanceClass)}
-              ariaLabel={'Information about class.'}
-            />
-          }
+          info={<InfoLink onFollow={() => setHelpPanelContent(detailsToolsContent.instanceClass)} />}
           description="Instance class allocates the computational, network, and memory capacity required by planned workload of this DB instance."
         >
           <Select
@@ -124,12 +127,7 @@ const InstanceOptions = ({
 
         <FormField
           label="Storage type"
-          info={
-            <InfoLink
-              onFollow={() => setHelpPanelContent(detailsToolsContent.storageType)}
-              ariaLabel={'Information about storage type.'}
-            />
-          }
+          info={<InfoLink onFollow={() => setHelpPanelContent(detailsToolsContent.storageType)} />}
           stretch={true}
         >
           <RadioGroup onChange={onStorageTypeChange} items={STORAGE_TYPES} value={storageType} />
@@ -137,14 +135,31 @@ const InstanceOptions = ({
         <FormField
           label="Allocated storage"
           description="Higher allocated storage may improve IOPS performance."
-          constraintText="Min: 20, Max: 16384."
+          errorText={validateStorageValue(Number(storage), [20, 128])}
         >
-          <div className="custom-input-small">
-            <Input type="number" autocomplete={true} controlId="storage" value={storage} onChange={onStorageChange} />
+          <div className="flex-wrapper">
+            <div className="slider-wrapper">
+              <Slider
+                ariaLabel="Allocated storage slider"
+                value={Number(storage)}
+                onChange={onStorageSliderChange}
+                min={20}
+                max={128}
+              />
+            </div>
+            <SpaceBetween size="m" alignItems="center" direction="horizontal">
+              <div className="input-wrapper">
+                <Input
+                  type="number"
+                  autocomplete={true}
+                  controlId="storage"
+                  value={storage}
+                  onChange={onStorageChange}
+                />
+              </div>
+              <div>GiB</div>
+            </SpaceBetween>
           </div>
-          <Box variant="span" padding={{ left: 's' }}>
-            GiB
-          </Box>
         </FormField>
         <Alert type="info" statusIconAriaLabel="Info">
           Provisioning less than 100 GiB of General Purpose (SSD) storage for high throughput workloads could result in
@@ -166,12 +181,7 @@ const NameAndPassword = ({ identifier, username, password, confirmPassword, onCh
       <SpaceBetween size="l">
         <FormField
           label="DB instance identifier"
-          info={
-            <InfoLink
-              onFollow={() => setHelpPanelContent(detailsToolsContent.identifier)}
-              ariaLabel={'Information about DB instance identifier.'}
-            />
-          }
+          info={<InfoLink onFollow={() => setHelpPanelContent(detailsToolsContent.identifier)} />}
           description="A name that is unique for all DB instances owned by your AWS account in the current region."
           constraintText="Case insensitive, but stored as all lower-case. Must contain from 1 to 63 alphanumeric characters or hyphens  (1 to 15 for SQL Server). First character must be a letter. Cannot end with a hyphen or contain two consecutive hyphens."
         >
@@ -179,12 +189,7 @@ const NameAndPassword = ({ identifier, username, password, confirmPassword, onCh
         </FormField>
         <FormField
           label="Primary user name"
-          info={
-            <InfoLink
-              onFollow={() => setHelpPanelContent(detailsToolsContent.username)}
-              ariaLabel={'Information about primary user name.'}
-            />
-          }
+          info={<InfoLink onFollow={() => setHelpPanelContent(detailsToolsContent.username)} />}
           description="A string that defines the login ID for the primary user."
           constraintText="Must start with a letter. Must contain 1 to 64 alphanumeric characters."
         >
@@ -193,12 +198,7 @@ const NameAndPassword = ({ identifier, username, password, confirmPassword, onCh
         <ColumnLayout columns={2}>
           <FormField
             label="Primary password"
-            info={
-              <InfoLink
-                onFollow={() => setHelpPanelContent(detailsToolsContent.password)}
-                ariaLabel={'Information about primary password.'}
-              />
-            }
+            info={<InfoLink onFollow={() => setHelpPanelContent(detailsToolsContent.password)} />}
             constraintText="Must be at least eight characters long. Can be any printable ASCII character except “/”, ““”, or “@”."
           >
             <Input type="password" value={password} onChange={onPasswordChange} />

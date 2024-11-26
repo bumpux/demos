@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 
-import AppLayout from '@cloudscape-design/components/app-layout';
 import Button from '@cloudscape-design/components/button';
 import Box from '@cloudscape-design/components/box';
 import BreadcrumbGroup from '@cloudscape-design/components/breadcrumb-group';
@@ -14,12 +13,14 @@ import SideNavigation from '@cloudscape-design/components/side-navigation';
 import SpaceBetween from '@cloudscape-design/components/space-between';
 import Table from '@cloudscape-design/components/table';
 import TopNavigation from '@cloudscape-design/components/top-navigation';
+import { isVisualRefresh } from '../../common/apply-mode';
 
 import '../../styles/base.scss';
 import '../../styles/top-navigation.scss';
 
 import logo from './logo.svg';
 import { Notifications } from './notifications';
+import { CustomAppLayout } from '../commons/common-components';
 
 const navItems = [
   {
@@ -65,11 +66,10 @@ const i18nStrings = {
 };
 
 const profileActions = [
-  { type: 'button', id: 'profile', text: 'Profile' },
-  { type: 'button', id: 'preferences', text: 'Preferences' },
-  { type: 'button', id: 'security', text: 'Security' },
+  { id: 'profile', text: 'Profile' },
+  { id: 'preferences', text: 'Preferences' },
+  { id: 'security', text: 'Security' },
   {
-    type: 'menu-dropdown',
     id: 'support-group',
     text: 'Support',
     items: [
@@ -84,7 +84,7 @@ const profileActions = [
       { id: 'support', text: 'Customer support' },
     ],
   },
-  { type: 'button', id: 'signout', text: 'Sign out' },
+  { id: 'signout', text: 'Sign out' },
 ];
 
 const columnDefinitions = [
@@ -92,66 +92,68 @@ const columnDefinitions = [
     id: 'name',
     cell: item => item.name,
     header: 'Name',
-    minWidth: 160,
+    minWidth: 100,
     isRowHeader: true,
   },
   {
     id: 'type',
     header: 'Type',
     cell: item => item.type,
-    minWidth: 100,
+    minWidth: 80,
   },
   {
     id: 'size',
     header: 'Size',
     cell: item => item.size,
-    minWidth: 100,
+    minWidth: 80,
   },
   {
     id: 'description',
     header: 'Description',
     cell: item => item.description,
-    minWidth: 100,
+    minWidth: 120,
   },
 ];
 
 const Content = () => {
   return (
-    <Table
-      items={[]}
-      columnDefinitions={columnDefinitions}
-      variant="full-page"
-      header={
-        <Header
-          variant="awsui-h1-sticky"
-          counter="(0)"
-          actions={
-            <SpaceBetween size="xs" direction="horizontal">
-              <Button disabled>View details</Button>
-              <Button disabled>Edit</Button>
-              <Button disabled>Delete</Button>
-              <Button variant="primary">Create page</Button>
+    <Box padding={{ top: isVisualRefresh ? 's' : 'n' }}>
+      <Table
+        items={[]}
+        columnDefinitions={columnDefinitions}
+        header={
+          <Header
+            variant="awsui-h1-sticky"
+            counter="(0)"
+            actions={
+              <SpaceBetween size="xs" direction="horizontal">
+                <Button disabled>View details</Button>
+                <Button disabled>Edit</Button>
+                <Button disabled>Delete</Button>
+                <Button variant="primary">Create page</Button>
+              </SpaceBetween>
+            }
+          >
+            Pages
+          </Header>
+        }
+        stickyHeader={true}
+        empty={
+          <Box margin={{ vertical: 'xs' }} textAlign="center" color="inherit">
+            <SpaceBetween size="xxs">
+              <div>
+                <b>No pages</b>
+                <Box variant="p" color="inherit">
+                  You don't have any pages.
+                </Box>
+              </div>
+              <Button>Create page</Button>
             </SpaceBetween>
-          }
-        >
-          Pages
-        </Header>
-      }
-      stickyHeader={true}
-      empty={
-        <Box margin={{ vertical: 'xs' }} textAlign="center" color="inherit">
-          <SpaceBetween size="xxs">
-            <div>
-              <b>No pages</b>
-              <Box variant="p" color="inherit">
-                You don't have any pages.
-              </Box>
-            </div>
-            <Button>Create page</Button>
-          </SpaceBetween>
-        </Box>
-      }
-    />
+          </Box>
+        }
+        enableKeyboardNavigation={true}
+      />
+    </Box>
   );
 };
 
@@ -205,13 +207,11 @@ function App() {
           ]}
         />
       </DemoHeaderPortal>
-      <AppLayout
+      <CustomAppLayout
         stickyNotifications
         toolsHide
-        ariaLabels={{ navigationClose: 'close' }}
         navigation={<SideNavigation activeHref="#/pages" items={navItems} />}
         breadcrumbs={<BreadcrumbGroup items={breadcrumbs} expandAriaLabel="Show path" ariaLabel="Breadcrumbs" />}
-        contentType="table"
         content={<Content />}
         notifications={<Notifications />}
       />

@@ -4,12 +4,11 @@ import React from 'react';
 import Header from '@cloudscape-design/components/header';
 import Link from '@cloudscape-design/components/link';
 import StatusIndicator, { StatusIndicatorProps } from '@cloudscape-design/components/status-indicator';
-import { TableProps } from '@cloudscape-design/components/table';
+import Table, { TableProps } from '@cloudscape-design/components/table';
 import Box from '@cloudscape-design/components/box';
 import Button from '@cloudscape-design/components/button';
 import { isVisualRefresh } from '../../../../common/apply-mode';
 import { WidgetConfig } from '../interfaces';
-import { EmbeddedTable } from '../../components/embedded-table-wrapper';
 
 export const alarms: WidgetConfig = {
   definition: { defaultRowSpan: 3, defaultColumnSpan: 2 },
@@ -48,7 +47,9 @@ function AlarmsHeader() {
 function AlarmsFooter() {
   return (
     <Box textAlign="center">
-      <Link href="#">View all alarms</Link>
+      <Link href="#" variant="primary">
+        View all alarms
+      </Link>
     </Box>
   );
 }
@@ -77,5 +78,13 @@ const alarmsItems: TableProps<Item>['items'] = [
 ];
 
 function AlarmsContent() {
-  return <EmbeddedTable resizableColumns={true} items={alarmsItems} columnDefinitions={alarmsDefinition} />;
+  return (
+    <Table
+      enableKeyboardNavigation={true}
+      variant="borderless"
+      resizableColumns={true}
+      items={alarmsItems}
+      columnDefinitions={alarmsDefinition}
+    />
+  );
 }

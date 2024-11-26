@@ -8,11 +8,11 @@ import {
   Link,
   StatusIndicator,
   StatusIndicatorProps,
+  Table,
   TableProps,
 } from '@cloudscape-design/components';
 import { WidgetConfig } from '../interfaces';
 import { isVisualRefresh } from '../../../../common/apply-mode';
-import { EmbeddedTable } from '../../components/embedded-table-wrapper';
 
 export const instanceLimits: WidgetConfig = {
   definition: { defaultRowSpan: 3, defaultColumnSpan: 2 },
@@ -61,7 +61,9 @@ function InstanceLimitsHeader() {
 function InstanceLimitsFooter() {
   return (
     <Box textAlign="center">
-      <Link href="#">View all instance limits</Link>
+      <Link href="#" variant="primary">
+        View all instance limits
+      </Link>
     </Box>
   );
 }
@@ -93,8 +95,10 @@ export default function InstanceLimitsContent() {
   const [selectedId, setSelectedId] = useContext(WidgetContext);
 
   return (
-    <EmbeddedTable
+    <Table
+      enableKeyboardNavigation={true}
       data-testid="instance-limits-table"
+      variant="borderless"
       resizableColumns={true}
       items={instanceLimitsItems}
       columnDefinitions={instanceLimitsDefinition}

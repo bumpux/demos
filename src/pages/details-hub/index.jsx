@@ -5,19 +5,10 @@ import { createRoot } from 'react-dom/client';
 import DataProvider from '../commons/data-provider';
 import { useAsyncData } from '../commons/use-async-data';
 import { INSTANCE_DROPDOWN_ITEMS, LOGS_COLUMN_DEFINITIONS } from '../details/details-config';
-import {
-  AppLayout,
-  Box,
-  Button,
-  ContentLayout,
-  Header,
-  Link,
-  SpaceBetween,
-  Table,
-} from '@cloudscape-design/components';
+import { Box, Button, Header, Link, SpaceBetween, Table } from '@cloudscape-design/components';
 import { Breadcrumbs, GeneralConfig, OriginsTable, PageHeader } from '../details/common-components';
-import { Navigation, Notifications } from '../commons/common-components';
-import { appLayoutAriaLabels, getHeaderCounterText } from '../../i18n-strings';
+import { CustomAppLayout, Navigation, Notifications } from '../commons/common-components';
+import { getHeaderCounterText } from '../../i18n-strings';
 import { logsTableAriaLabels } from './commons';
 import '../../styles/base.scss';
 
@@ -29,6 +20,7 @@ function LogsTable() {
 
   return (
     <Table
+      enableKeyboardNavigation={true}
       className="logs-table"
       loading={logsLoading}
       loadingText="Loading logs"
@@ -40,7 +32,7 @@ function LogsTable() {
       onSelectionChange={event => setSelectedItems(event.detail.selectedItems)}
       header={
         <Header
-          counter={getHeaderCounterText(logs, selectedItems)}
+          counter={!logsLoading && getHeaderCounterText(logs, selectedItems)}
           actions={
             <SpaceBetween direction="horizontal" size="xs">
               <Button disabled={!isOnlyOneSelected}>View</Button>
@@ -64,27 +56,23 @@ function LogsTable() {
 class App extends React.Component {
   render() {
     return (
-      <AppLayout
+      <CustomAppLayout
         content={
-          <ContentLayout
-            header={
-              <PageHeader
-                buttons={[{ text: 'Actions', items: INSTANCE_DROPDOWN_ITEMS }, { text: 'Edit' }, { text: 'Delete' }]}
-              />
-            }
-          >
+          <SpaceBetween size="m">
+            <PageHeader
+              buttons={[{ text: 'Actions', items: INSTANCE_DROPDOWN_ITEMS }, { text: 'Edit' }, { text: 'Delete' }]}
+            />
             <SpaceBetween size="l">
               <GeneralConfig />
               <LogsTable />
               <OriginsTable />
             </SpaceBetween>
-          </ContentLayout>
+          </SpaceBetween>
         }
         breadcrumbs={<Breadcrumbs />}
         navigation={<Navigation activeHref="#/distributions" />}
         toolsHide={true}
         contentType="default"
-        ariaLabels={appLayoutAriaLabels}
         notifications={<Notifications />}
       />
     );

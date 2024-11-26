@@ -1,6 +1,6 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useCollection } from '@cloudscape-design/collection-hooks';
 import PropertyFilter from '@cloudscape-design/components/property-filter';
 import Pagination from '@cloudscape-design/components/pagination';
@@ -12,16 +12,15 @@ import {
   distributionTableAriaLabels,
   getHeaderCounterText,
   getTextFilterCounterText,
-  paginationAriaLabels,
   propertyFilterI18nStrings,
   renderAriaLive,
 } from '../../i18n-strings';
+import DataProvider from '../commons/data-provider';
 import { Preferences } from '../commons/table-config';
 
 import '../../styles/base.scss';
 
 export function PropertyFilterTable({
-  data,
   loadHelpPanelContent,
   columnDefinitions,
   contentDisplayOptions,
@@ -30,8 +29,10 @@ export function PropertyFilterTable({
   setPreferences,
   filteringProperties,
 }) {
+  const [distributions, setDistributions] = useState([]);
+  const [loading, setLoading] = useState(false);
   const { items, actions, filteredItemsCount, collectionProps, paginationProps, propertyFilterProps } = useCollection(
-    data,
+    distributions,
     {
       propertyFiltering: {
         filteringProperties,
@@ -50,9 +51,17 @@ export function PropertyFilterTable({
     }
   );
 
+  useEffect(() => {
+    new DataProvider().getData('distributions').then(distributions => {
+      setDistributions(distributions);
+      setLoading(false);
+    });
+  }, []);
+
   return (
     <Table
       {...collectionProps}
+      enableKeyboardNavigation={true}
       items={items}
       columnDefinitions={columnDefinitions}
       columnDisplay={preferences.contentDisplay}
@@ -65,14 +74,16 @@ export function PropertyFilterTable({
       wrapLines={preferences.wrapLines}
       stripedRows={preferences.stripedRows}
       contentDensity={preferences.contentDensity}
+      stickyColumns={preferences.stickyColumns}
       onColumnWidthsChange={saveWidths}
       header={
         <FullPageHeader
           selectedItemsCount={collectionProps.selectedItems.length}
-          counter={getHeaderCounterText(data, collectionProps.selectedItems)}
+          counter={!loading && getHeaderCounterText(distributions, collectionProps.selectedItems)}
           onInfoLinkClick={loadHelpPanelContent}
         />
       }
+      loading={loading}
       loadingText="Loading distributions"
       filter={
         <PropertyFilter
@@ -80,9 +91,10 @@ export function PropertyFilterTable({
           i18nStrings={propertyFilterI18nStrings}
           countText={getTextFilterCounterText(filteredItemsCount)}
           expandToViewport={true}
+          enableTokenGroups={true}
         />
       }
-      pagination={<Pagination {...paginationProps} ariaLabels={paginationAriaLabels(paginationProps.pagesCount)} />}
+      pagination={<Pagination {...paginationProps} />}
       preferences={
         <Preferences
           preferences={preferences}

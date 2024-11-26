@@ -7,7 +7,7 @@ export const baseTableAriaLabels: TableProps.AriaLabels<unknown> = {
 };
 
 const baseEditableLabels: TableProps.AriaLabels<{ id: string }> = {
-  activateEditLabel: column => `Edit ${column.header}`,
+  activateEditLabel: (column, item) => `Edit ${item.id} ${column.header}`,
   cancelEditLabel: column => `Cancel editing ${column.header}`,
   submitEditLabel: column => `Submit edit ${column.header}`,
 };

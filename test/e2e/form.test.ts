@@ -26,7 +26,7 @@ describe('Single page create', () => {
       'loads filtered options from server',
       setupTest(async page => {
         await page.openDistributionSelector();
-        await page.filterDisributionsOptions('26');
+        await page.filterDistributionsOptions('16');
         await expect(page.countDistributionSelectorOptions()).resolves.toBe(1);
       })
     );
@@ -48,16 +48,12 @@ describe('Single page create', () => {
 
   describe('Tag Editor', () => {
     test(
-      'renders default tag row by default',
-      setupTest(async page => {
-        await expect(page.countTags()).resolves.toBe(1);
-      })
-    );
-
-    test(
       'can add and remove tags',
       setupTest(async page => {
-        await page.addTag();
+        await page.addTag(true);
+        await expect(page.countTags()).resolves.toBe(1);
+
+        await page.addTag(true);
         await expect(page.countTags()).resolves.toBe(2);
 
         await page.removeTag(2);

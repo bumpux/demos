@@ -6,21 +6,29 @@ import {
   BreadcrumbGroup,
   Button,
   ButtonDropdown,
-  ColumnLayout,
   Container,
   Header,
   ProgressBar,
   StatusIndicator,
   SpaceBetween,
   Table,
+  TextFilter,
+  Tabs,
+  CopyToClipboard,
+  KeyValuePairs,
 } from '@cloudscape-design/components';
+import { CodeView } from '@cloudscape-design/code-view';
+import jsonHighlight from '@cloudscape-design/code-view/highlight/json';
+import yamlHighlight from '@cloudscape-design/code-view/highlight/yaml';
+import xmlHighlight from '@cloudscape-design/code-view/highlight/xml';
 import { useAsyncData } from '../commons/use-async-data';
 import DataProvider from '../commons/data-provider';
 import { TableEmptyState, InfoLink } from '../commons/common-components';
 import { ORIGINS_COLUMN_DEFINITIONS, BEHAVIORS_COLUMN_DEFINITIONS, TAGS_COLUMN_DEFINITIONS } from './details-config';
 import { resourceDetailBreadcrumbs } from '../../common/breadcrumbs';
-import CopyText from '../commons/copy-text';
-import { baseTableAriaLabels, getHeaderCounterText } from '../../i18n-strings';
+import { baseTableAriaLabels, getHeaderCounterText, getTextFilterCounterText } from '../../i18n-strings';
+import { useCollection } from '@cloudscape-design/collection-hooks';
+import { codeSnippets } from './details-code-snippets';
 
 export const DEMO_DISTRIBUTION = {
   id: 'SLCCSMWOHOFUY0',
@@ -62,103 +70,126 @@ export const PageHeader = ({ buttons }) => {
 
 export const GeneralConfig = () => (
   <Container header={<Header variant="h2">General configuration</Header>}>
-    <ColumnLayout columns={4} variant="text-grid">
-      <div>
-        <Box variant="awsui-key-label">Engine</Box>
-        <div>Oracle Enterprise Edition 12.1.0.2.v7</div>
-      </div>
-      <div>
-        <Box variant="awsui-key-label">DB instance class</Box>
-        <div>db.t2.large</div>
-      </div>
-      <div>
-        <Box variant="awsui-key-label">DB instance status</Box>
-        <StatusIndicator type="success">Available</StatusIndicator>
-      </div>
-      <div>
-        <Box variant="awsui-key-label">Pending maintenance</Box>
-        <div>None</div>
-      </div>
-    </ColumnLayout>
+    <KeyValuePairs
+      columns={4}
+      items={[
+        {
+          label: 'Engine',
+          value: 'Oracle Enterprise Edition 12.1.0.2.v7',
+        },
+        {
+          label: 'DB instance class',
+          value: 'db.t2.large',
+        },
+        {
+          label: 'DB instance status',
+          value: <StatusIndicator type="success">Available</StatusIndicator>,
+        },
+        {
+          label: 'Pending maintenance',
+          value: 'None',
+        },
+      ]}
+    />
   </Container>
 );
 
 export const SettingsDetails = ({ distribution = DEMO_DISTRIBUTION, isInProgress }) => (
-  <ColumnLayout columns={4} variant="text-grid">
-    <SpaceBetween size="l">
-      <div>
-        <Box variant="awsui-key-label">Distribution ID</Box>
-        <div>{distribution.id}</div>
-      </div>
-      <div>
-        <Box variant="awsui-key-label">Domain name</Box>
-        <div>{distribution.domainName}</div>
-      </div>
-      <div>
-        <Box variant="awsui-key-label">ARN</Box>
-        <CopyText
-          copyText={`arn:aws:cloudfront::${distribution.domainName}/${distribution.id}`}
-          copyButtonLabel="Copy ARN"
-          successText="ARN copied"
-          errorText="ARN failed to copy"
-        />
-      </div>
-    </SpaceBetween>
-
-    <SpaceBetween size="l">
-      {distribution.state ? (
-        <StatusIndicator type={distribution.state === 'Deactivated' ? 'error' : 'success'}>
-          {distribution.state}
-        </StatusIndicator>
-      ) : (
-        <ProgressBar
-          value={27}
-          label="Status"
-          description={isInProgress ? 'Update in progress' : undefined}
-          variant="key-value"
-          resultText="Available"
-          status={isInProgress ? 'in-progress' : 'success'}
-        />
-      )}
-
-      <div>
-        <Box variant="awsui-key-label">Price class</Box>
-        <div>{distribution.priceClass}</div>
-      </div>
-      <div>
-        <Box variant="awsui-key-label">CNAMEs</Box>
-        <div>-</div>
-      </div>
-    </SpaceBetween>
-    <SpaceBetween size="l">
-      <div>
-        <Box variant="awsui-key-label">SSL certificate</Box>
-        <div>{distribution.sslCertificate}</div>
-      </div>
-      <div>
-        <Box variant="awsui-key-label">Custom SSL client support</Box>
-        <div>-</div>
-      </div>
-      <div>
-        <Box variant="awsui-key-label">Logging</Box>
-        <div>{distribution.logging}</div>
-      </div>
-    </SpaceBetween>
-    <SpaceBetween size="l">
-      <div>
-        <Box variant="awsui-key-label">IPv6</Box>
-        <div>Off</div>
-      </div>
-      <div>
-        <Box variant="awsui-key-label">Default root object</Box>
-        <div>-</div>
-      </div>
-      <div>
-        <Box variant="awsui-key-label">Comment</Box>
-        <div>To verify</div>
-      </div>
-    </SpaceBetween>
-  </ColumnLayout>
+  <KeyValuePairs
+    columns={4}
+    items={[
+      {
+        type: 'group',
+        items: [
+          {
+            label: 'Distribution ID',
+            value: distribution.id,
+          },
+          {
+            label: 'Domain name',
+            value: distribution.domainName,
+          },
+          {
+            label: 'ARN',
+            value: (
+              <CopyToClipboard
+                variant="inline"
+                textToCopy={`arn:aws:cloudfront::${distribution.domainName}/${distribution.id}`}
+                copyButtonAriaLabel="Copy ARN"
+                copySuccessText="ARN copied"
+                copyErrorText="ARN failed to copy"
+              />
+            ),
+          },
+        ],
+      },
+      {
+        type: 'group',
+        items: [
+          {
+            label: distribution.state ? '' : 'Status',
+            id: 'status-id',
+            value: distribution.state ? (
+              <StatusIndicator type={distribution.state === 'Deactivated' ? 'error' : 'success'}>
+                {distribution.state}
+              </StatusIndicator>
+            ) : (
+              <ProgressBar
+                value={27}
+                description={isInProgress ? 'Update in progress' : undefined}
+                variant="key-value"
+                resultText="Available"
+                status={isInProgress ? 'in-progress' : 'success'}
+                ariaLabelledby="status-id"
+              />
+            ),
+          },
+          {
+            label: 'Price class',
+            value: distribution.priceClass,
+          },
+          {
+            label: 'CNAMEs',
+            value: '-',
+          },
+        ],
+      },
+      {
+        type: 'group',
+        items: [
+          {
+            label: 'SSL certificate',
+            value: distribution.sslCertificate,
+          },
+          {
+            label: 'Custom SSL client support',
+            value: '-',
+          },
+          {
+            label: 'Logging',
+            value: distribution.logging,
+          },
+        ],
+      },
+      {
+        type: 'group',
+        items: [
+          {
+            label: 'IPv6',
+            value: 'Off',
+          },
+          {
+            label: 'Default root object',
+            value: '-',
+          },
+          {
+            label: 'Comment',
+            value: 'To verify',
+          },
+        ],
+      },
+    ]}
+  />
 );
 
 export const EmptyTable = props => {
@@ -166,6 +197,7 @@ export const EmptyTable = props => {
   const colDefs = props.columnDefinitions || TAGS_COLUMN_DEFINITIONS;
   return (
     <Table
+      enableKeyboardNavigation={true}
       empty={<TableEmptyState resourceName={resourceType} />}
       columnDefinitions={colDefs}
       items={[]}
@@ -184,6 +216,32 @@ export const EmptyTable = props => {
   );
 };
 
+export const DistributionDetails = () => {
+  return (
+    <Container header={<Header variant="h2">Distribution configuration details</Header>}>
+      <Tabs
+        tabs={[
+          {
+            label: 'JSON',
+            id: 'json',
+            content: <CodeView highlight={jsonHighlight} lineNumbers content={codeSnippets.json} />,
+          },
+          {
+            label: 'YAML',
+            id: 'yaml',
+            content: <CodeView highlight={yamlHighlight} lineNumbers content={codeSnippets.yaml} />,
+          },
+          {
+            label: 'XML',
+            id: 'xml',
+            content: <CodeView highlight={xmlHighlight} lineNumbers content={codeSnippets.xml} />,
+          },
+        ]}
+      />
+    </Container>
+  );
+};
+
 const originsSelectionLabels = {
   ...baseTableAriaLabels,
   itemSelectionLabel: (data, row) => `select ${row.name}`,
@@ -198,6 +256,7 @@ export function OriginsTable() {
 
   return (
     <Table
+      enableKeyboardNavigation={true}
       className="origins-table"
       columnDefinitions={ORIGINS_COLUMN_DEFINITIONS}
       loading={originsLoading}
@@ -209,7 +268,7 @@ export function OriginsTable() {
       onSelectionChange={event => setSelectedItems(event.detail.selectedItems)}
       header={
         <Header
-          counter={getHeaderCounterText(origins, selectedItems)}
+          counter={!originsLoading && getHeaderCounterText(origins, selectedItems)}
           actions={
             <SpaceBetween direction="horizontal" size="xs">
               <Button disabled={!isOnlyOneSelected}>Edit</Button>
@@ -239,6 +298,7 @@ export function BehaviorsTable() {
 
   return (
     <Table
+      enableKeyboardNavigation={true}
       className="cache-table"
       columnDefinitions={BEHAVIORS_COLUMN_DEFINITIONS}
       items={behaviors}
@@ -250,7 +310,7 @@ export function BehaviorsTable() {
       onSelectionChange={event => setSelectedItems(event.detail.selectedItems)}
       header={
         <Header
-          counter={getHeaderCounterText(behaviors, selectedItems)}
+          counter={!behaviorsLoading && getHeaderCounterText(behaviors, selectedItems)}
           actions={
             <SpaceBetween direction="horizontal" size="xs">
               <Button disabled={!isOnlyOneSelected}>Edit</Button>
@@ -272,18 +332,45 @@ export function TagsTable({ loadHelpPanelContent }) {
     return ResourceTagMappingList.reduce((tags, resourceTagMapping) => [...tags, ...resourceTagMapping.Tags], []);
   });
 
+  const { items, collectionProps, filteredItemsCount, filterProps, actions } = useCollection(tags, {
+    filtering: {
+      noMatch: (
+        <Box textAlign="center" color="inherit">
+          <Box variant="strong" textAlign="center" color="inherit">
+            No matches
+          </Box>
+          <Box variant="p" padding={{ bottom: 's' }} color="inherit">
+            No tags matched the search text.
+          </Box>
+          <Button onClick={() => actions.setFiltering('')}>Clear filter</Button>
+        </Box>
+      ),
+    },
+    sorting: {},
+  });
+
   return (
     <Table
+      enableKeyboardNavigation={true}
       id="tags-panel"
       columnDefinitions={TAGS_COLUMN_DEFINITIONS}
-      items={tags}
+      items={items}
+      {...collectionProps}
       loading={tagsLoading}
       loadingText="Loading tags"
+      filter={
+        <TextFilter
+          {...filterProps}
+          filteringPlaceholder="Find tags"
+          filteringAriaLabel="Filter tags"
+          countText={getTextFilterCounterText(filteredItemsCount)}
+        />
+      }
       header={
         <Header
           variant="h2"
-          counter={`(${tags.length})`}
-          info={<InfoLink onFollow={() => loadHelpPanelContent(2)} ariaLabel={'Information about tags.'} />}
+          counter={!tagsLoading && `(${tags.length})`}
+          info={<InfoLink onFollow={() => loadHelpPanelContent(2)} />}
           actions={<Button>Manage tags</Button>}
           description={
             <>

@@ -16,7 +16,6 @@ import {
   TableNoMatchState,
 } from '../commons/common-components';
 import {
-  paginationAriaLabels,
   distributionTableAriaLabels,
   getTextFilterCounterText,
   getHeaderCounterText,
@@ -28,7 +27,7 @@ import { useLocalStorage } from '../commons/use-local-storage';
 
 function TableContent({ distributions, loadHelpPanelContent }) {
   const [columnDefinitions, saveWidths] = useColumnWidths('React-Table-Widths', COLUMN_DEFINITIONS);
-  const [preferences, setPreferences] = useLocalStorage('React-DistributionsTable-Preferences', DEFAULT_PREFERENCES);
+  const [preferences, setPreferences] = useLocalStorage('React-Table-Preferences', DEFAULT_PREFERENCES);
   const { items, actions, filteredItemsCount, collectionProps, filterProps, paginationProps } = useCollection(
     distributions,
     {
@@ -44,6 +43,7 @@ function TableContent({ distributions, loadHelpPanelContent }) {
   return (
     <Table
       {...collectionProps}
+      enableKeyboardNavigation={true}
       columnDefinitions={columnDefinitions}
       columnDisplay={preferences.contentDisplay}
       items={items}
@@ -57,6 +57,7 @@ function TableContent({ distributions, loadHelpPanelContent }) {
       wrapLines={preferences.wrapLines}
       stripedRows={preferences.stripedRows}
       contentDensity={preferences.contentDensity}
+      stickyColumns={preferences.stickyColumns}
       header={
         <FullPageHeader
           selectedItemsCount={collectionProps.selectedItems.length}
@@ -73,7 +74,7 @@ function TableContent({ distributions, loadHelpPanelContent }) {
           countText={getTextFilterCounterText(filteredItemsCount)}
         />
       }
-      pagination={<Pagination {...paginationProps} ariaLabels={paginationAriaLabels(paginationProps.pagesCount)} />}
+      pagination={<Pagination {...paginationProps} />}
       preferences={<Preferences preferences={preferences} setPreferences={setPreferences} />}
     />
   );

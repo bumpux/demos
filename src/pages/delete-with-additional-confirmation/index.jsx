@@ -4,13 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import {
   Alert,
-  AppLayout,
   Box,
   BreadcrumbGroup,
   Button,
   ColumnLayout,
   Container,
-  ContentLayout,
   Flashbar,
   FormField,
   Header,
@@ -18,9 +16,10 @@ import {
   Link,
   Modal,
   SpaceBetween,
+  KeyValuePairs,
 } from '@cloudscape-design/components';
 import { Navigation } from '../commons/common-components';
-import { appLayoutAriaLabels } from '../../i18n-strings';
+import { CustomAppLayout } from '../commons/common-components';
 import INSTANCES from '../../resources/ec2-instances';
 import '../../styles/base.scss';
 
@@ -28,7 +27,6 @@ import ItemState from '../delete-with-simple-confirmation/item-state';
 import useLocationHash from '../delete-with-simple-confirmation/use-location-hash';
 import useNotifications from '../delete-with-simple-confirmation/use-notifications';
 import InstancesTable from './instances-table';
-import { flashbarI18nStrings } from '../../i18n-strings';
 import fakeDelay from '../commons/fake-delay';
 
 const delay = 3000;
@@ -110,7 +108,7 @@ function App() {
 
 function InstancesPage({ instances, selectedItems, setSelectedItems, onDeleteInit, notifications }) {
   return (
-    <AppLayout
+    <CustomAppLayout
       content={
         <InstancesTable
           instances={instances}
@@ -129,11 +127,10 @@ function InstancesPage({ instances, selectedItems, setSelectedItems, onDeleteIni
           ariaLabel="Breadcrumbs"
         />
       }
-      notifications={<Flashbar items={notifications} stackItems={true} i18nStrings={flashbarI18nStrings} />}
+      notifications={<Flashbar items={notifications} stackItems={true} />}
       navigation={<Navigation activeHref="#" />}
       navigationOpen={false}
       toolsHide={true}
-      ariaLabels={appLayoutAriaLabels}
       contentType="table"
     />
   );
@@ -141,52 +138,48 @@ function InstancesPage({ instances, selectedItems, setSelectedItems, onDeleteIni
 
 function InstanceDetailsPage({ instance, onDeleteInit, notifications }) {
   return (
-    <AppLayout
+    <CustomAppLayout
       content={
-        <ContentLayout
-          header={
-            <Header
-              variant="h1"
-              actions={
-                <SpaceBetween direction="horizontal" size="xs">
-                  <Button>Edit</Button>
-                  <Button onClick={onDeleteInit}>Delete</Button>
-                </SpaceBetween>
-              }
-            >
-              {instance.id}
-            </Header>
-          }
-        >
-          <Container header={<Header variant="h2">Instance details</Header>}>
-            <ColumnLayout columns={4} variant="text-grid">
-              <SpaceBetween size="l">
-                <div>
-                  <Box variant="awsui-key-label">Instance ID</Box>
-                  <div>{instance.id}</div>
-                </div>
-                <div>
-                  <Box variant="awsui-key-label">Instance type</Box>
-                  <div>{instance.type}</div>
-                </div>
+        <SpaceBetween size="m">
+          <Header
+            variant="h1"
+            actions={
+              <SpaceBetween direction="horizontal" size="xs">
+                <Button>Edit</Button>
+                <Button onClick={onDeleteInit}>Delete</Button>
               </SpaceBetween>
-              <div>
-                <Box variant="awsui-key-label">Public DNS</Box>
-                <div>{instance.publicDns}</div>
-              </div>
-              <div>
-                <Box variant="awsui-key-label">Monitoring</Box>
-                <div>{instance.monitoring}</div>
-              </div>
-              <div>
-                <Box variant="awsui-key-label">Instance state</Box>
-                <div>
-                  <ItemState state={instance.state} />
-                </div>
-              </div>
-            </ColumnLayout>
+            }
+          >
+            {instance.id}
+          </Header>
+          <Container header={<Header variant="h2">Instance details</Header>}>
+            <KeyValuePairs
+              columns={4}
+              items={[
+                {
+                  label: 'Instance ID',
+                  value: instance.id,
+                },
+                {
+                  label: 'Public DNS',
+                  value: instance.publicDns,
+                },
+                {
+                  label: 'Monitoring',
+                  value: instance.monitoring,
+                },
+                {
+                  label: 'Instance state',
+                  value: <ItemState state={instance.state} />,
+                },
+                {
+                  label: 'Instance type',
+                  value: instance.type,
+                },
+              ]}
+            />
           </Container>
-        </ContentLayout>
+        </SpaceBetween>
       }
       breadcrumbs={
         <BreadcrumbGroup
@@ -199,11 +192,10 @@ function InstanceDetailsPage({ instance, onDeleteInit, notifications }) {
           ariaLabel="Breadcrumbs"
         />
       }
-      notifications={<Flashbar items={notifications} stackItems={true} i18nStrings={flashbarI18nStrings} />}
+      notifications={<Flashbar items={notifications} stackItems={true} />}
       navigation={<Navigation activeHref="#" />}
       navigationOpen={false}
       toolsHide={true}
-      ariaLabels={appLayoutAriaLabels}
     />
   );
 }
@@ -269,7 +261,7 @@ function DeleteModal({ instances, visible, onDiscard, onDelete }) {
             Proceeding with this action will delete the
             {isMultiple ? ' instances with all their content ' : ' instance with all its content'} and can affect
             related resources.{' '}
-            <Link external={true} href="#">
+            <Link external={true} href="#" ariaLabel="Learn more about resource management, opens in new tab">
               Learn more
             </Link>
           </Alert>

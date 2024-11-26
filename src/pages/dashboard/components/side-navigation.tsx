@@ -15,7 +15,7 @@ const navItems: SideNavigationProps['items'] = [
     text: 'Events',
     href: '#/events',
     info: (
-      <Box color="text-status-info" display="inline">
+      <Box color="text-status-info" variant="span">
         <Popover
           header="Introducing events"
           size="medium"
@@ -23,7 +23,12 @@ const navItems: SideNavigationProps['items'] = [
           content={
             <>
               AWS can schedule events for your instances, such as reboot, stop/start, or retirement.{' '}
-              <Link external={true} href="#">
+              <Link
+                external={true}
+                ariaLabel="Learn more about events management, opens in new tab"
+                href="#"
+                variant="primary"
+              >
                 Learn more
               </Link>
             </>
@@ -32,6 +37,7 @@ const navItems: SideNavigationProps['items'] = [
           dismissAriaLabel="Close"
         >
           <Box
+            variant="span"
             color="text-status-info"
             fontSize="body-s"
             fontWeight="bold"
@@ -57,7 +63,7 @@ const navItems: SideNavigationProps['items'] = [
         text: 'Launch templates',
         href: '#/launch_templates',
         info: (
-          <Box color="text-status-info" display="inline">
+          <Box color="text-status-info" variant="span">
             <Popover
               header="Introducing launch templates"
               size="medium"
@@ -66,13 +72,21 @@ const navItems: SideNavigationProps['items'] = [
                 <>
                   Launch templates is a new capability that enables a new way to templatize your launch requests. Launch
                   templates streamline and simplify the launch process for auto scaling, spot fleet, spot, and on-demand
-                  instances. <Link external>Learn more</Link>
+                  instances.{' '}
+                  <Link
+                    external
+                    href="#"
+                    ariaLabel="Learn more about launch templates, opens in new tab"
+                    variant="primary"
+                  >
+                    Learn more
+                  </Link>
                 </>
               }
               renderWithPortal={true}
               dismissAriaLabel="Close"
             >
-              <Box color="text-status-info" fontSize="body-s" fontWeight="bold">
+              <Box color="text-status-info" fontSize="body-s" fontWeight="bold" variant="span">
                 New
               </Box>
             </Popover>
@@ -87,7 +101,7 @@ const navItems: SideNavigationProps['items'] = [
         text: 'Scheduled instances',
         href: '#/scheduled_instances',
         info: (
-          <Box color="text-status-info" display="inline">
+          <Box color="text-status-info" variant="span">
             <Popover
               data-testid="beta"
               header="Beta feature"
@@ -95,13 +109,21 @@ const navItems: SideNavigationProps['items'] = [
               triggerType="text"
               content={
                 <>
-                  We are improving the way to create scheduled instances. <Link external>Learn more</Link>
+                  We are improving the way to create scheduled instances.{' '}
+                  <Link
+                    external
+                    href="#"
+                    ariaLabel="Learn more about instance scheduling, opens in new tab"
+                    variant="primary"
+                  >
+                    Learn more
+                  </Link>
                 </>
               }
               renderWithPortal={true}
               dismissAriaLabel="Close"
             >
-              <Box color="text-status-info" fontSize="body-s" fontWeight="bold">
+              <Box color="text-status-info" fontSize="body-s" fontWeight="bold" variant="span">
                 Beta
               </Box>
             </Popover>

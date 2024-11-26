@@ -1,7 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 import React from 'react';
-import { Box, Link, TextContent } from '@cloudscape-design/components';
+import { Box, TextContent } from '@cloudscape-design/components';
 import { ExternalLink } from '../commons';
 
 export const ENGINES = [
@@ -300,23 +300,13 @@ export const ENGINE_USECASES = [
   {
     value: 'Production',
     label: 'Production',
-    description: (
-      <span>
-        Use <Link href="https://aws.amazon.com/rds/ha/">Multi-AZ deployment</Link> and{' '}
-        <Link href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Welcome.html">provisioned IOPS storage</Link>{' '}
-        as defaults for high availability and fast, consistent performance.
-      </span>
-    ),
+    description:
+      'Use Multi-AZ deployment and provisioned IOPS storage as defaults for high availability and fast, consistent performance.',
   },
   {
     value: 'Dev/test',
     label: 'Dev/test',
-    description: (
-      <span>
-        This instance is intended for use outside of production or under the{' '}
-        <Link href="https://aws.amazon.com/rds/free/">RDS Free Usage Tier</Link>.
-      </span>
-    ),
+    description: 'This instance is intended for use outside of production or under the RDS Free Usage Tier',
   },
 ];
 

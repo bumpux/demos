@@ -5,6 +5,7 @@ import Calendar from '@cloudscape-design/components/calendar';
 import DateInput from '@cloudscape-design/components/date-input';
 import FormField from '@cloudscape-design/components/form-field';
 import TimeInput from '@cloudscape-design/components/time-input';
+import DatePicker from '@cloudscape-design/components/date-picker';
 
 export function DateTimeForm({ filter, operator, value, onChange }) {
   // Using the most reasonable default time per operator.
@@ -43,29 +44,44 @@ export function DateTimeForm({ filter, operator, value, onChange }) {
     [dateValue, timeValue]
   );
 
+  const dateInputProps = {
+    placeholder: 'YYYY/MM/DD',
+    value: dateValue,
+    onChange: event => onChangeDate(event.detail.value),
+  };
+  const timeInputProps = {
+    format: 'hh:mm:ss',
+    placeholder: 'hh:mm:ss',
+    value: timeValue,
+    onChange: event => onChangeTime(event.detail.value),
+  };
+  const calendarProps = { value: dateValue, locale: 'en-EN', onChange: event => onChangeDate(event.detail.value) };
+
+  if (typeof filter !== 'undefined') {
+    return (
+      <div className="date-time-form">
+        <FormField description="Date">
+          <DateInput {...dateInputProps} />
+        </FormField>
+
+        <FormField description="Time">
+          <TimeInput {...timeInputProps} />
+        </FormField>
+
+        <Calendar {...calendarProps} />
+      </div>
+    );
+  }
+
   return (
     <div className="date-time-form">
-      <FormField description="Date" constraintText="Use YYYY/MM/DD format.">
-        <DateInput placeholder="YYYY/MM/DD" value={dateValue} onChange={event => onChangeDate(event.detail.value)} />
+      <FormField description="Date">
+        <DatePicker {...dateInputProps} {...calendarProps} />
       </FormField>
 
-      <FormField description="Time" constraintText="Use 24-hour format.">
-        <TimeInput
-          format="hh:mm:ss"
-          placeholder="hh:mm:ss"
-          value={timeValue}
-          onChange={event => onChangeTime(event.detail.value)}
-        />
+      <FormField description="Time">
+        <TimeInput {...timeInputProps} />
       </FormField>
-
-      <Calendar
-        value={dateValue}
-        locale="en-EN"
-        previousMonthAriaLabel="Previous month"
-        nextMonthAriaLabel="Next month"
-        todayAriaLabel="Today"
-        onChange={event => onChangeDate(event.detail.value)}
-      />
     </div>
   );
 }

@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: MIT-0
 import useBrowser from '@cloudscape-design/browser-test-tools/use-browser';
 import createWrapper from '@cloudscape-design/components/test-utils/selectors';
-import { BasePageObject } from '@cloudscape-design/browser-test-tools/page-objects';
+import BaseExamplePage from './common/base-example-page';
+import range from 'lodash/range';
 
 const setupTagsTest = (testFn: (page: TagsTab) => Promise<void>) => {
   return useBrowser(async browser => {
@@ -31,7 +32,7 @@ const wrapper = createWrapper('body');
 const tagsTableWrapper = wrapper.findTable('#tags-panel');
 const tagsTableRowSelector = tagsTableWrapper.findRows().toSelector();
 
-class TagsTab extends BasePageObject {
+class TagsTab extends BaseExamplePage {
   async switchToTab(id: string) {
     await this.click(wrapper.findTabs().findTabLinkById(id).toSelector());
     await this.waitForTableToLoad();
@@ -48,7 +49,7 @@ class TagsTab extends BasePageObject {
   }
 
   async getTableRows() {
-    const elements = await this.browser.$$(tagsTableRowSelector);
-    return Promise.all(elements.map((el, index) => this.getTableRow(index + 1)));
+    const totalTags = await this.getElementsCount(tagsTableRowSelector);
+    return Promise.all(range(0, totalTags).map(index => this.getTableRow(index + 1)));
   }
 }
